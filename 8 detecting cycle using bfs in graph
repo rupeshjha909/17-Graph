@@ -1,0 +1,60 @@
+template<typename T>
+class Graph
+{
+    map<T, list<T> > adjList;
+
+public:
+    void addEdge(T u, T v, bool bidir = true)
+    {
+        adjList[u].push_back(v);
+        if (bidir)
+        {
+            adjList[v].push_back(u);
+        }
+    }
+
+    //check for undirected graph
+    bool isCyclicBFS(T src)
+    {
+        map<T, bool> visited;
+        map<T, int> parent;
+        queue<T> q;
+
+        q.push(src); //push the source
+        visited[src] = true; //mark the sorce as visited
+        parent[src] = src;   //marking the parent
+
+        while (!q.empty())//run until queue is empty
+        {
+            T node = q.front(); //current node
+            q.pop();
+            //iterate over the neighbours of that node leaving parent
+            for (T neighbour : adjList[node])
+            {
+                if (visited[neighbour] == true and parent[node] != neighbour) //if neighbour visited and parent of current node is not neighbour then cycle detected
+                    return true;
+                else if (!visited[neighbour]) //if neighbour not visited
+                {
+                    visited[neighbour] = true; //mark neighbour as visited
+                    parent[neighbour] = node; //mark parent of neighbour as parent node
+                    q.push(neighbour);
+                }
+            }
+        }
+        return false;
+    }
+};
+
+int main()
+{
+    Graph<int> g;
+    g.addEdge(1, 2);
+    g.addEdge(1, 4);
+    g.addEdge(4, 3);
+    // g.addEdge(2, 3);
+
+    if (g.isCyclicBFS(1))
+        cout << "cyclic graph";
+    else
+        cout << "non cyclic graph";
+}
