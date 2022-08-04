@@ -1,0 +1,48 @@
+class graph
+{
+	int v;
+	//adj list
+	map < string, list<pair<string, int> > > l;
+public:
+	void addEdge(string x, string y, bool bidir, int wt)
+	{
+		l[x].push_back(make_pair(y, wt));
+		if (bidir)
+		{
+			l[y].push_back(make_pair(x, wt));
+		}
+	}
+
+	void printadjlist()
+	{
+		//iterate over all the keys in the map
+		for (auto p : l)
+		{
+			string city = p.first;
+			list < pair<string, int> > nbrs = p.second;
+			cout << city << "->";
+			for (auto nbr : nbrs)
+			{
+				string dest = nbr.first;
+				int dist = nbr.second;
+
+				cout << dest << " " << dist << ",";
+			}
+			cout << endl;
+		}
+	}
+};
+
+int main()
+{
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+	graph g;
+	g.addEdge("a", "b", true, 20);
+	g.addEdge("b", "d", true, 40);
+	g.addEdge("a", "c", true, 10);
+	g.addEdge("c", "d", true, 40);
+	g.addEdge("a", "d", false, 50);
+	g.printadjlist();
+}
