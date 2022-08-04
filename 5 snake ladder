@@ -1,0 +1,100 @@
+template < typename T>
+class graph
+{
+	map < T, list<T> >l;
+public:
+	void addEdge(int x, int y)//assume edges are bidirectional
+	{
+		l[x].push_back(y);
+		//not bidirectional so comment it out
+		//l[y].push_back(x);
+	}
+
+	int bfs(T src, T dest)
+	{
+		map < T, int> dist;//created for marking distance
+		map < T, T> parent;
+		queue<T> q;
+
+		//all other nodes except src is infinity
+		for (auto node_pair : l)
+		{
+			T node = node_pair.first;
+			dist[node] = INT_MAX;
+		}
+		q.push(src);
+		dist[src] = 0;
+		parent[src] = src;
+
+		while (!q.empty())
+		{
+			T node = q.front();
+			q.pop();
+			//cout << node << " ";
+			for (auto nbr : l[node])//l[node] gives the value of that node
+			{
+				if (dist[nbr] == INT_MAX) //if that node is not visited
+				{
+					q.push(nbr);
+					//mark that neighbour distance that is parent distance + 1
+					dist[nbr] = dist[node] + 1;
+					parent[nbr] = node;
+				}
+			}
+		}
+		//print dist to every node
+		/*for (auto node_pair : l)
+		{
+			T node = node_pair.first;
+			int d = dist[node];
+			cout << "Node " << node << " dist from src " << d << endl;
+		}*/
+		//dest to source
+		T temp = dest;
+		while (temp != src)
+		{
+			cout << temp << "---";
+			temp = parent[temp];
+		}
+		cout << src << endl;
+		return dist[dest];
+	}
+};
+
+int main()
+{
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+	graph<int> g;
+	int board[50] = {0};
+	//snakes and ladders
+	//for ladders we are writting that what we is incrementing due to ladder
+	//for snakes we are writting that what we is decrementing due to snakes
+	board[2] = 13;
+	board[5] = 2;
+	board[9] = 18;
+	board[18] = 11;
+	board[17] = -13;
+	board[20] = -14;
+	board[24] = -8;
+	board[25] = 10;
+	board[32] = -2;
+	board[34] = -22;
+	//lets construct the graph add edges to the graph u,v
+	for (int u = 0; u <= 36; u++)
+	{
+		//at every node you can throw a dice
+		for (int dice = 1; dice <= 6; dice++)
+		{
+			int v = u + dice;
+			v += board[v];
+
+			if (v <= 36)
+				g.addEdge(u, v);
+		}
+	}
+	//making last edges
+	g.addEdge(36, 36);
+	cout << "the shortest dist is " << g.bfs(1, 36);
+}
