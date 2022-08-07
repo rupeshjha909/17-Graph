@@ -1,0 +1,87 @@
+template < typename T>
+class graph {
+	unordered_map < T, list < pair <T, int> > >m;
+public:
+	void addEdge(T u, T v, int dist, bool bidir = true) {
+		m[u].push_back(make_pair(v, dist));
+		if (bidir)
+			m[v].push_back(make_pair(u, dist));
+	}
+
+	void printAdj() {
+		//lets try to print the adj list
+		//iterate over all the key value pairs in the map
+		for (auto p : m) {
+			auto node = p.first;
+			cout << node << "-->";
+			//iterate over the list of cities
+			for (auto nbr : m[node]) {
+				int city = nbr.first;
+				int dist = nbr.second;
+				cout << "(" << city << "," << dist << ")";
+			}
+			cout << endl;
+		}
+	}
+
+	void dijkstrSSSP(T src) {
+		unordered_map < T, int> dist;
+		//----step1------//
+		//set all distances to infinity
+		for (auto p : m) {
+			dist[p.first] = INT_MAX;
+		}
+		//-----step2(repeative step)------//
+		//make a set to find out the node with minimum distance
+		set<pair<int, T> >s;
+		dist[src] = 0;
+		//set stores an sorted order according to first ele that is weight
+		s.insert(make_pair(0, src));
+
+		while (!s.empty()) {
+			//find the pair at the front
+			auto p = *(s.begin());
+			auto node = p.second;
+
+			int nodedist = p.first;
+			s.erase(s.begin());
+
+			//iterate over neighbours/children of the current node
+			for (auto childpair : m[node]) {
+				int childdist = childpair.second;
+				int child = childpair.first;
+				if (nodedist + childdist < dist[childpair.first]) {
+					//in the set updation of particular is not possible
+					//we have to remove the old pair and insert the new pair to simulation updation
+					auto dest = childpair.first;
+					auto f = s.find(make_pair(dist[dest], dest));
+					if (f != s.end()) {
+						s.erase(f);
+					}
+					//insert the new pair
+					dist[dest] = nodedist + childpair.second;
+					s.insert(make_pair(dist[dest], dest));
+				}
+			}
+		}
+		//print the distance to all other node from src
+		for (auto d : dist) {
+			cout << d.first << " is located at distance of " << d.second << endl;
+		}
+	}
+};
+
+int32_t main()
+{
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+	graph<int> g;
+	g.addEdge(1, 2, 1);
+	g.addEdge(1, 3, 4);
+	g.addEdge(2, 3, 1);
+	g.addEdge(3, 4, 2);
+	g.addEdge(1, 4, 7);
+	g.printAdj();
+	g.dijkstrSSSP(1);
+}
