@@ -1,0 +1,36 @@
+== Flood fill algorithm
+
+class Solution {
+public:
+    int dx[4] = {1, -1, 0, 0};
+    int dy[4] = {0, 0, 1, -1};
+    void dfs(vector<vector<char>> &grid, int curr, int curc, int r, int c) {
+        grid[curr][curc] = 2; //we are using this logic inplace of vis
+        for (int k = 0; k < 4; k++) {
+            int nx = curr + dx[k];
+            int ny = curc + dy[k];
+            if (nx >= 0 and nx<r and ny >= 0 and ny < c and grid[nx][ny] == '1') {
+                dfs(grid, nx, ny, r, c);
+            }
+        }
+    }
+    //Function to find the number of islands.
+    int numIslands(vector<vector<char>>& grid)
+    {
+        // Code here
+        int r = grid.size();
+        int c = grid[0].size();
+
+        int ans = 0;
+        for (int i = 0; i < r; i++) {
+            for (int j = 0; j < c; j++) {
+                if (grid[i][j] == '1')
+                {
+                    dfs(grid, i, j, r, c);
+                    ans++;
+                }
+            }
+        }
+        return ans;
+    }
+};
