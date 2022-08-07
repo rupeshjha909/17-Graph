@@ -1,0 +1,57 @@
+//this question is based on printing the one island with one color and other island
+// with other color
+int dx[4] = {1, -1, 0, 0};
+int dy[4] = {0, 0, 1, -1};
+void dfs(vector<vector<int>> &grid, int curr, int curc, int r, int c, int color, vector<vector<int>> &vis) {
+	grid[curr][curc] = color; //we are using this logic inplace of vis
+	vis[curr][curc] = 1;
+	for (int k = 0; k < 4; k++) {
+		int nx = curr + dx[k];
+		int ny = curc + dy[k];
+		if (nx >= 0 and nx<r and ny >= 0 and ny < c and grid[nx][ny] == 1 and vis[nx][ny] == 0) {
+			dfs(grid, nx, ny, r, c, color , vis);
+		}
+	}
+}
+//Function to find the number of islands.
+int numIslands(vector<vector<int>>& grid)
+{
+	// Code here
+	int r = grid.size();
+	int c = grid[0].size();
+	std::vector<vector<int> > vis(r, vector<int>(c, 0));
+	int ans = 0;
+	for (int i = 0; i < r; i++) {
+		for (int j = 0; j < c; j++) {
+			if (grid[i][j] == 1 and vis[i][j] == 0)
+			{
+				ans++;
+				dfs(grid, i, j, r, c, ans, vis);
+			}
+		}
+	}
+	return ans;
+}
+
+int32_t main()
+{
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+	int r, c;
+	cin >> r >> c;
+	vector<vector<int>> grid(r, vector<int>(c));
+	for (int i = 0; i < r; i++ ) {
+		for (int j = 0; j < c; j++) {
+			cin >> grid[i][j];
+		}
+	}
+	cout << numIslands(grid) << endl;
+
+	for (int i = 0; i < r; i++ ) {
+		for (int j = 0; j < c; j++) {
+			cout << grid[i][j] << " ";
+		}
+		cout << endl;
+	}
+}
