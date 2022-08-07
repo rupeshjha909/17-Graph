@@ -1,0 +1,51 @@
+
+/*
+- all pair shortest path
+- shortest between all pair of vertices
+- work with negative cycles
+- can detect negative cycles too with one extra step
+- dp base---O(n^3) time where n is vertices
+*/
+
+void floyd(vector<vector<long long>> graph)
+{
+	//initialize 2d vector
+	vector<vector<long long>> dist(graph);
+
+	//phases in kth phase we included vertices (1,2,3...k) as intermediate matrix
+	for (int k = 0; k < 4; k++)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				//vertex k is included and can we minimize the distance
+				if (dist[i][k] + dist[k][j] < dist[i][j])
+				{
+					dist[i][j] = dist[i][k] + dist[k][j];
+				}
+			}
+		}
+	}
+	for (int i = 0; i < 4; i++)
+	{
+		cout << "From " << i + 1 << "->";
+		for (int j = 0; j < 4; j++)
+		{
+			cout << dist[i][j] << " ";
+		}
+		cout << "\n";
+	}
+}
+
+int32_t main()
+{
+	vector<vector<long long>> graph = {
+		{0, INT_MAX, -2, INT_MAX},
+		{4, 0, 3, INT_MAX},
+		{INT_MAX, INT_MAX, 0, 2},
+		{INT_MAX, -1, INT_MAX, 0},
+	};
+	floyd(graph);
+	return 0;
+}
