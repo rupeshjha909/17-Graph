@@ -1,0 +1,41 @@
+int32_t main()
+{
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+	int n, m;
+	cin >> n >> m;
+	int a[n][m];
+	int dist[n][m];
+	//store location of white cells
+	pair<int, int> nearest[n][m];
+
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			cin >> a[i][j];
+			dist[i][j] = INT_MAX;
+		}
+	}
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++)
+		{
+			if (a[i][j]) {
+				for (int ii = 0; ii < n; ii++) {
+					for (int jj = 0; jj < m; jj++) {
+						if (abs(ii - i) + abs(jj - j) < dist[ii][jj]) {
+							dist[ii][jj] = min(dist[ii][jj], abs(ii - i) + abs(jj - j));
+							nearest[ii][jj] = {i, j};
+						}
+
+					}
+				}
+			}
+		}
+	}
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < m; j++) {
+			cout << dist[i][j] << " ";
+		}
+		cout << endl;
+	}
+}
