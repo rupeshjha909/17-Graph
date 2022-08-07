@@ -1,0 +1,75 @@
+/*algorithm
+1. start from any source vertex
+2. out of all active edges pick the one with smallest weight
+*/
+
+class graph {
+	//adjacency list implementation
+	vector < pair<int, int> >*l;//for array of vector
+	int v;
+public:
+	graph(int n) {
+		v = n;
+		l = new vector < pair <int, int> >[n];
+	}
+
+	void addEdge(int x, int y, int wt) {
+		l[x].push_back({y, wt});
+		l[y].push_back({x, wt});
+	}
+
+	int prim_mst() {
+		//most important stuff
+		priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> q;
+		//another array
+		//visited array that denotes whether a node has been included in mst or not
+		bool *visited = new bool[v] {0};
+
+		int ans = 0;
+
+		//begin
+		q.push({0, 0});//pushing weight,node
+
+		while (!q.empty()) {
+			//pick out the edge with min weight from all available active edges
+			auto best = q.top();
+			q.pop();
+
+			int to = best.second;//destinatin node
+			int wt = best.first; //weight for destination node
+
+			if (visited[to]) {
+				//discard the edge and continue
+				continue;
+			}
+			//otherwise take the current edge and mark as visited
+			ans += wt;
+			visited[to] = 1;
+
+			//add the new edge in the queue which contains all the active edge
+			for (auto x : l[to]) {
+				if (visited[x.first] == 0) {
+					q.push({x.second, x.first});//pusing wt,node in the queue
+				}
+			}
+		}
+		return ans;
+	}
+};
+
+int32_t main()
+{
+	ios_base::sync_with_stdio(false);
+	cin.tie(NULL);
+	cout.tie(NULL);
+	int n, m;
+	cin >> n >> m;
+
+	graph g(n);
+	for (int i = 0; i < m; i++) {
+		int x, y, w;
+		cin >> x >> y >> w;
+		g.addEdge(x - 1, y - 1, w);
+	}
+	cout << g.prim_mst() << endl;
+}
