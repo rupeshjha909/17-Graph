@@ -1,68 +1,51 @@
-template < typename T>
-
-class graph
+class Solution
 {
-	map < T, list<T> >l;
 public:
-	void addEdge(int x, int y)//assume edges are bidirectional
+	// Function to find the shortest path from source to all other nodes
+	vector<int> shortestPath(vector<vector<int>> &adj, int src)
 	{
-		l[x].push_back(y);
-		l[y].push_back(x);
-	}
-
-	void bfs(T src)
-	{
-		map < T, int> dist;//created for marking distance
-		queue<T> q;
-
-		//all other nodes except src is infinity
-		for (auto node_pair : l)
-		{
-			T node = node_pair.first;
-			dist[node] = INT_MAX;
-		}
-
+		// code here
+		int v = adj.size();
+		vector<int> dist(v,INT_MAX);
+		queue<int> q;
 		q.push(src);
 		dist[src] = 0;
-
-		while (!q.empty())
-		{
-			T node = q.front();
+		while(!q.empty()){
+			int node = q.front();
 			q.pop();
-			//cout << node << " ";
-			for (auto nbr : l[node])//l[node] gives the value of that node
-			{
-				if (dist[nbr] == INT_MAX) //if that node is not visited
-				{
-					q.push(nbr);
-					//mark that neighbour distance that is parent distance + 1
-					dist[nbr] = dist[node] + 1;
+			for(auto neighbour:adj[node]){
+				if(dist[neighbour]==INT_MAX){
+					dist[neighbour] = dist[node] + 1;
+					q.push(neighbour);
 				}
 			}
 		}
-
-		//print dist to every node
-		for (auto node_pair : l)
-		{
-			T node = node_pair.first;
-			int d = dist[node];
-			cout << "Node " << node << " dist from src " << d << endl;
-		}
+		return dist;
 	}
 };
 
+
 int main()
 {
-	ios_base::sync_with_stdio(false);
-	cin.tie(NULL);
-	cout.tie(NULL);
-	graph<int> g;
-	g.addEdge(0, 1);
-	g.addEdge(0, 4);
-	g.addEdge(1, 2);
-	g.addEdge(2, 4);
-	g.addEdge(2, 3);
-	g.addEdge(3, 4);
-	g.addEdge(3, 5);
-	g.bfs(0);
+	// Redirect input and output
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+	// input for this
+	int v, e;
+	cin >> v >> e;
+	vector<vector<int>> adj(v);
+	for(int i=0;i<e;i++){
+		int u, v;
+		cin >> u >> v;
+		adj[u].pb(v);
+		adj[v].pb(u);
+	}
+
+	Solution s;
+	vector<int> dist = s.shortestPath(adj, 0);
+	for (int i = 0; i < v;i++)
+	{
+		cout <<"dist from 0 to " << i << " is " << dist[i] << endl;
+	}
+	return 0;
 }
