@@ -1,3 +1,5 @@
+in this value of node must be less than n i.e number of vertices otherwise segmentation fault
+
 class graph
 {
 	int v;
