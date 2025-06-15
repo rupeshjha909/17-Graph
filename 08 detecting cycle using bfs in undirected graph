@@ -1,60 +1,64 @@
-template<typename T>
-class Graph
+class graph
 {
-    map<T, list<T> > adjList;
+	map<int, list<int>> l;
 
 public:
-    void addEdge(T u, T v, bool bidir = true)
-    {
-        adjList[u].push_back(v);
-        if (bidir)
-        {
-            adjList[v].push_back(u);
-        }
-    }
-
-    //check for undirected graph
-    bool isCyclicBFS(T src)
-    {
-        map<T, bool> visited;
-        map<T, int> parent;
-        queue<T> q;
-
-        q.push(src); //push the source
-        visited[src] = true; //mark the sorce as visited
-        parent[src] = src;   //marking the parent
-
-        while (!q.empty())//run until queue is empty
-        {
-            T node = q.front(); //current node
-            q.pop();
-            //iterate over the neighbours of that node leaving parent
-            for (T neighbour : adjList[node])
-            {
-                if (visited[neighbour] == true and parent[node] != neighbour) //if neighbour visited and parent of current node is not neighbour then cycle detected
-                    return true;
-                else if (!visited[neighbour]) //if neighbour not visited
-                {
-                    visited[neighbour] = true; //mark neighbour as visited
-                    parent[neighbour] = node; //mark parent of neighbour as parent node
-                    q.push(neighbour);
-                }
-            }
-        }
-        return false;
-    }
+	bool isCyclicBfs(vector<vector<int>>& adjList, int src, int n)
+	{
+		queue<int> q;
+		vector<bool> vis(n, false);
+		vector<int> parent(n, -1);
+		
+		q.push(src);
+		vis[src] = true;
+		
+		while (!q.empty())
+		{
+			auto node = q.front();
+			q.pop();
+			for (auto nbr : adjList[node])
+			{
+				if (!vis[nbr])
+				{
+					vis[nbr] = true;
+					parent[nbr] = node;
+					q.push(nbr);
+				}
+				else if (parent[node] != nbr)	
+				{
+					return true;
+				}
+			}
+			
+		}
+		return false;
+	}
 };
 
 int main()
 {
-    Graph<int> g;
-    g.addEdge(1, 2);
-    g.addEdge(1, 4);
-    g.addEdge(4, 3);
-    // g.addEdge(2, 3);
+	// Redirect input and output
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+	
+	// Define edges directly as a vector of vectors
+	vector<vector<int>> edges = {
+		{0, 1},
+		{0, 2},
+		{0, 3},
+		{1, 2},
+		{3, 4}
+	};
+	
+	int n = 5; // Number of nodes (0-4)
+	vector<vector<int>> adjList(n); // n is number of nodes
+	for (auto &edge : edges)
+	{
+		adjList[edge[0]].push_back(edge[1]);
+		adjList[edge[1]].push_back(edge[0]); // For undirected graph
+	}
+	graph g;
+	cout << "Is cycle present? " << (g.isCyclicBfs(adjList, 0, n) ? "Yes" : "No") << endl;
 
-    if (g.isCyclicBFS(1))
-        cout << "cyclic graph";
-    else
-        cout << "non cyclic graph";
+	return 0;
 }
