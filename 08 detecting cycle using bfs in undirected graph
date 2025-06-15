@@ -1,8 +1,6 @@
 class graph
 {
-	map<int, list<int>> l;
-
-public:
+	public:
 	bool isCyclicBfs(vector<vector<int>>& adjList, int src, int n)
 	{
 		queue<int> q;
