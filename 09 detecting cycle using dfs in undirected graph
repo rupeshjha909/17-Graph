@@ -1,71 +1,66 @@
-template<typename T>
-class Graph
+class graph
 {
-    map<T, list<T> > adjList;
-    int V;
-
 public:
-    Graph(int v)
-    {
-        V = v;
-    }
+	int dfsHelper(vector<vector<int>> &adjList, vector<bool> &vis, int node, int parent)
+	{
+		vis[node] = true;
+		for (auto nbr : adjList[node])
+		{
+			if (!vis[nbr])
+			{
+				if (dfsHelper(adjList, vis, nbr, node))
+				{
+					return true;
+				}
+			}
+			else if (nbr != parent)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 
-    void addEdge(T u, T v, bool bidir = true)
-    {
-        adjList[u].push_back(v);
-        if (bidir)
-        {
-            adjList[v].push_back(u);
-        }
-    }
-
-    bool isCyclicHelper(T node, map<T, bool> &visited, T parent)
-    {
-        visited[node] = true;
-        for (T neigbour : adjList[node])
-        {
-            if (!visited[neigbour])
-            {
-                bool cycledetected = isCyclicHelper(neigbour, visited, node);
-                if (cycledetected)
-                    return true;
-            }
-
-            //if neighbour is already visited
-            else if (neigbour != parent)
-                return true;
-        }
-        return false;
-    }
-
-    //check for undirected graph
-    bool isCyclicDFS()
-    {
-        map<T, bool> visited;
-
-        //you can call for finding cycle in every dfs tree
-        for (auto i : adjList)
-        {
-            T node = i.first;
-            if (!visited[node])
-            {
-                bool ans = isCyclicHelper(node, visited, node);
-                if (ans == true)
-                    return true;
-            }
-        }
-        return false;
-    }
+	bool dfs(vector<vector<int>> &adjList, int v)
+	{
+		vector<bool> vis(v, false);
+		for (auto i = 0; i < v; i++)
+		{
+			if (!vis[i])
+			{
+				if (dfsHelper(adjList, vis, i, -1))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 };
 
 int main()
 {
-    Graph<int> g(4);
-    g.addEdge(1, 2);
-    g.addEdge(1, 4);
-    g.addEdge(4, 3);
-    if (g.isCyclicDFS())
-        cout << "cyclic graph";
-    else
-        cout << "non cyclic graph";
+	// Redirect input and output
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+
+	// Define edges directly as a vector of vectors
+	vector<vector<int>> edges = {
+		 {0, 1},
+		 {0, 2},
+		 {0, 3},
+		 {1, 2},
+		 {3, 4}};
+
+	int n = 5;							  // Number of nodes (0-4)
+	vector<vector<int>> adjList(n); // n is number of nodes
+	for (auto &edge : edges)
+	{
+		adjList[edge[0]].push_back(edge[1]);
+		adjList[edge[1]].push_back(edge[0]); // For undirected graph
+	}
+	graph g;
+	cout << "Is cycle present? " << (g.dfs(adjList, n) ? "Yes" : "No") << endl;
+
+	return 0;
 }
