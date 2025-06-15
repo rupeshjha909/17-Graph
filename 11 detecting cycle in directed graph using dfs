@@ -1,80 +1,89 @@
-template<typename T>
-class Graph
+
+class graph
 {
-  map<T, list<T> > adjList;
-
 public:
-  void addEdge(T u, T v, bool bidir = true)
-  {
-    adjList[u].push_back(v);
-    if (bidir)
-    {
-      adjList[v].push_back(u);
-    }
-  }
+	/**
+	 * Detects a cycle in a directed graph using DFS.
+	 *
+	 * @param adjList The adjacency list of the graph.
+	 * @param node The current node being visited.
+	 * @param visited Vector to track visited nodes.
+	 * @param instack Vector to track nodes in the current DFS recursion stack.
+	 * @return true if a cycle is detected, false otherwise.
+	 */
+	bool isCyclicUsingDFSHelper(vector<vector<int>> &adjList, int node, vector<bool> &visited, vector<bool> &instack)
+	{
+		visited[node] = true;      // Mark the current node as visited
+		instack[node] = true;      // Mark the current node as part of the recursion stack
+		for (auto nbr : adjList[node])
+		{
+			// If the neighbor is already in the recursion stack, a cycle is found
+			if(instack[nbr])
+			{
+				return true;
+			}
+			// If the neighbor hasn't been visited, recursively visit it
+			else if (!visited[nbr])
+			{
+				if (isCyclicUsingDFSHelper(adjList, nbr, visited, instack))
+				{
+					return true;
+				}
+			}
+		}
+		instack[node] = false;     // Remove the node from the recursion stack before returning
+		return false;
+	}
 
-  bool isCyclicHelper(T node, map<T, bool> &visited, map<T, bool> &instack)
-  {
-    //processing the current node- visited,instack
-    visited[node] = true;
-    instack[node] = true;
-
-    //explore the neighbour of the node
-    for (auto neighbour : adjList[node])
-    {
-      //two things can happen
-      //the current node is not visited but its further branch is leading to a cycle
-      //1st case--
-      if (instack[neighbour] == true)
-        return true;
-
-      //neighbour is not visited but it can lead to a cycle
-      if (visited[neighbour] == false)
-      {
-        bool cycle_mila = isCyclicHelper(neighbour, visited, instack);
-        if (cycle_mila)
-          return true;
-      }
-    }
-    //going to pop out the node,instack=false
-    instack[node] = false;
-    return false;
-  }
-  //in this we check whether graph has backedge or not
-  bool isCyclic()
-  {
-    map<T, bool> visited;
-    map<T, bool> instack;
-
-    //check for cycle in each dfs tree
-    for (auto i : adjList)
-    {
-      auto node = i.first; //current node
-      if (!visited[node]) //if not visited
-      {
-        bool cyclePresent = isCyclicHelper(node, visited, instack);
-        if (cyclePresent)
-          return true;
-      }
-    }
-    return false;
-  }
+	/**
+	 * Wrapper function to check for cycles in the entire graph.
+	 * Calls the helper for each unvisited node (handles disconnected graphs).
+	 *
+	 * @param adjList The adjacency list of the graph.
+	 * @param v Number of vertices in the graph.
+	 * @return true if a cycle is detected, false otherwise.
+	 */
+	bool isCyclicUsingDFS(vector<vector<int>> &adjList, int v)
+	{
+		vector<bool> visited(v, false);
+		vector<bool> inStack(v, false);
+		for (int i = 0; i < v; i++)
+		{
+			if (!visited[i])
+			{
+				if (isCyclicUsingDFSHelper(adjList, i, visited, inStack))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 };
 
 int main()
 {
-  Graph<int> g;
-  g.addEdge(0, 1, false);
-  g.addEdge(1, 2, false);
-  g.addEdge(2, 3, false);
-  g.addEdge(3, 4, false);
-  g.addEdge(4, 5, false);
-  //g.addEdge(1, 5, false);
-  g.addEdge(5, 6, false);
-  //g.addEdge(4, 2, false);//back edge
+	// Redirect input and output
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
 
-  if (g.isCyclic())
-    cout << "cycle present";
-  else
-    cout << "cycle not found";
+	// Define edges directly as a vector of vectors
+	vector<vector<int>> edges = {
+		 {0, 1},
+		 {0, 2},
+		 {0, 3},
+		 {1, 2},
+		 {3, 2}};
+
+	int n = 5;							  // Number of nodes (0-4)
+	vector<vector<int>> adjList(n); // n is number of nodes
+	for (auto &edge : edges)
+	{
+		adjList[edge[0]].push_back(edge[1]);
+		adjList[edge[1]].push_back(edge[0]); // For undirected graph
+	}
+	graph g;
+	cout << "Is cycle present? " << (g.isCyclicUsingDFS(adjList, n) ? "Yes" : "No") << endl;
+
+	return 0;
 }
