@@ -1,3 +1,315 @@
+import java.util.*;
+
+/**
+ * Graph Implementation for Snakes and Ladders Game
+ * Converted from C++ template class to Java (without generics)
+ * Implements BFS to find shortest path in snakes and ladders game
+ */
+public class SnakesAndLadders {
+    
+    // Map to store adjacency list: node -> list of neighbors
+    private Map<Integer, List<Integer>> adjacencyList;
+    
+    /**
+     * Constructor
+     */
+    public SnakesAndLadders() {
+        this.adjacencyList = new HashMap<>();
+    }
+    
+    /**
+     * Add edge from node x to node y (unidirectional)
+     * 
+     * @param x source node
+     * @param y destination node
+     */
+    public void addEdge(int x, int y) {
+        // Add y to x's adjacency list (unidirectional)
+        adjacencyList.computeIfAbsent(x, k -> new ArrayList<>()).add(y);
+        // Note: Not bidirectional as per original C++ code
+    }
+    
+    /**
+     * Breadth First Search to find shortest path from source to destination
+     * 
+     * @param src source node
+     * @param dest destination node
+     * @return shortest distance from source to destination
+     */
+    public int bfs(int src, int dest) {
+        // Map to store distances from source
+        Map<Integer, Integer> dist = new HashMap<>();
+        
+        // Map to store parent nodes for path reconstruction
+        Map<Integer, Integer> parent = new HashMap<>();
+        
+        // Queue for BFS traversal
+        Queue<Integer> queue = new LinkedList<>();
+        
+        // Initialize all distances to infinity (Integer.MAX_VALUE)
+        for (Map.Entry<Integer, List<Integer>> entry : adjacencyList.entrySet()) {
+            int node = entry.getKey();
+            dist.put(node, Integer.MAX_VALUE);
+        }
+        
+        // Add source to queue and set its distance to 0
+        queue.add(src);
+        dist.put(src, 0);
+        parent.put(src, src);
+        
+        while (!queue.isEmpty()) {
+            int node = queue.poll();
+            
+            // Get neighbors of current node
+            List<Integer> neighbors = adjacencyList.get(node);
+            if (neighbors != null) {
+                for (int neighbor : neighbors) {
+                    if (dist.get(neighbor) == Integer.MAX_VALUE) {
+                        // If neighbor is not visited
+                        queue.add(neighbor);
+                        // Set distance to parent distance + 1
+                        dist.put(neighbor, dist.get(node) + 1);
+                        parent.put(neighbor, node);
+                    }
+                }
+            }
+        }
+        
+        // Print path from destination to source
+        System.out.print("Path from " + dest + " to " + src + ": ");
+        int temp = dest;
+        while (temp != src) {
+            System.out.print(temp + "---");
+            temp = parent.get(temp);
+        }
+        System.out.println(src);
+        
+        return dist.get(dest);
+    }
+    
+    /**
+     * Print the adjacency list representation of the graph
+     */
+    public void printGraph() {
+        System.out.println("Graph Adjacency List:");
+        for (Map.Entry<Integer, List<Integer>> entry : adjacencyList.entrySet()) {
+            System.out.print(entry.getKey() + " -> ");
+            for (int neighbor : entry.getValue()) {
+                System.out.print(neighbor + " ");
+            }
+            System.out.println();
+        }
+    }
+    
+    /**
+     * Print distances from source to all nodes
+     * 
+     * @param src source node
+     */
+    public void printDistances(int src) {
+        Map<Integer, Integer> dist = new HashMap<>();
+        Map<Integer, Integer> parent = new HashMap<>();
+        Queue<Integer> queue = new LinkedList<>();
+        
+        // Initialize all distances to infinity
+        for (Map.Entry<Integer, List<Integer>> entry : adjacencyList.entrySet()) {
+            int node = entry.getKey();
+            dist.put(node, Integer.MAX_VALUE);
+        }
+        
+        queue.add(src);
+        dist.put(src, 0);
+        parent.put(src, src);
+        
+        while (!queue.isEmpty()) {
+            int node = queue.poll();
+            
+            List<Integer> neighbors = adjacencyList.get(node);
+            if (neighbors != null) {
+                for (int neighbor : neighbors) {
+                    if (dist.get(neighbor) == Integer.MAX_VALUE) {
+                        queue.add(neighbor);
+                        dist.put(neighbor, dist.get(node) + 1);
+                        parent.put(neighbor, node);
+                    }
+                }
+            }
+        }
+        
+        System.out.println("Distances from source " + src + ":");
+        for (Map.Entry<Integer, Integer> entry : dist.entrySet()) {
+            int node = entry.getKey();
+            int distance = entry.getValue();
+            if (distance == Integer.MAX_VALUE) {
+                System.out.println("Node " + node + " dist from src: INFINITY");
+            } else {
+                System.out.println("Node " + node + " dist from src: " + distance);
+            }
+        }
+    }
+    
+    /**
+     * Build the snakes and ladders game board
+     * 
+     * @param board array representing snakes and ladders
+     * @param maxPosition maximum position on the board
+     */
+    public void buildSnakesAndLaddersBoard(int[] board, int maxPosition) {
+        // Clear existing graph
+        adjacencyList.clear();
+        
+        // Build graph for snakes and ladders game
+        for (int u = 0; u <= maxPosition; u++) {
+            // At every node you can throw a dice (1 to 6)
+            for (int dice = 1; dice <= 6; dice++) {
+                int v = u + dice;
+                
+                // Apply snake or ladder effect
+                if (v <= maxPosition && board[v] != 0) {
+                    v += board[v];
+                }
+                
+                // Add edge if destination is within board limits
+                if (v <= maxPosition) {
+                    addEdge(u, v);
+                }
+            }
+        }
+        
+        // Add self-loop for the final position
+        addEdge(maxPosition, maxPosition);
+    }
+    
+    /**
+     * Get the shortest path as a list
+     * 
+     * @param src source node
+     * @param dest destination node
+     * @return list representing the shortest path
+     */
+    public List<Integer> getShortestPath(int src, int dest) {
+        Map<Integer, Integer> dist = new HashMap<>();
+        Map<Integer, Integer> parent = new HashMap<>();
+        Queue<Integer> queue = new LinkedList<>();
+        
+        // Initialize all distances to infinity
+        for (Map.Entry<Integer, List<Integer>> entry : adjacencyList.entrySet()) {
+            int node = entry.getKey();
+            dist.put(node, Integer.MAX_VALUE);
+        }
+        
+        queue.add(src);
+        dist.put(src, 0);
+        parent.put(src, src);
+        
+        while (!queue.isEmpty()) {
+            int node = queue.poll();
+            
+            List<Integer> neighbors = adjacencyList.get(node);
+            if (neighbors != null) {
+                for (int neighbor : neighbors) {
+                    if (dist.get(neighbor) == Integer.MAX_VALUE) {
+                        queue.add(neighbor);
+                        dist.put(neighbor, dist.get(node) + 1);
+                        parent.put(neighbor, node);
+                    }
+                }
+            }
+        }
+        
+        // Reconstruct path
+        List<Integer> path = new ArrayList<>();
+        int current = dest;
+        while (current != src) {
+            path.add(0, current);
+            current = parent.get(current);
+        }
+        path.add(0, src);
+        
+        return path;
+    }
+    
+    public static void main(String[] args) {
+        // Create graph instance
+        SnakesAndLadders g = new SnakesAndLadders();
+        
+        // Initialize board array (same as C++ code)
+        int[] board = new int[50];
+        
+        // Snakes and ladders configuration
+        // For ladders: positive values (incrementing due to ladder)
+        // For snakes: negative values (decrementing due to snake)
+        board[2] = 13;   // Ladder: 2 -> 15
+        board[5] = 2;    // Ladder: 5 -> 7
+        board[9] = 18;   // Ladder: 9 -> 27
+        board[18] = 11;  // Ladder: 18 -> 29
+        board[17] = -13; // Snake: 17 -> 4
+        board[20] = -14; // Snake: 20 -> 6
+        board[24] = -8;  // Snake: 24 -> 16
+        board[25] = 10;  // Ladder: 25 -> 35
+        board[32] = -2;  // Snake: 32 -> 30
+        board[34] = -22; // Snake: 34 -> 12
+        
+        // Build the snakes and ladders game board
+        g.buildSnakesAndLaddersBoard(board, 36);
+        
+        // Print the graph structure (optional, for debugging)
+        // g.printGraph();
+        
+        // Find shortest path from position 1 to position 36
+        System.out.println("=== Snakes and Ladders Game ===");
+        System.out.println("Finding shortest path from position 1 to 36...");
+        
+        int shortestDistance = g.bfs(1, 36);
+        System.out.println("The shortest distance is: " + shortestDistance);
+        
+        // Get and print the complete path
+        List<Integer> path = g.getShortestPath(1, 36);
+        System.out.println("Complete path: " + path);
+        
+        // Print distances to all nodes from source
+        System.out.println("\n=== Distance Analysis ===");
+        g.printDistances(1);
+        
+        // Additional analysis
+        System.out.println("\n=== Game Analysis ===");
+        System.out.println("Board Configuration:");
+        for (int i = 0; i <= 36; i++) {
+            if (board[i] != 0) {
+                if (board[i] > 0) {
+                    System.out.println("Ladder at " + i + " -> " + (i + board[i]));
+                } else {
+                    System.out.println("Snake at " + i + " -> " + (i + board[i]));
+                }
+            }
+        }
+        
+        // Test with different starting positions
+        System.out.println("\n=== Testing Different Starting Positions ===");
+        int[] testStarts = {0, 5, 10, 15, 20};
+        for (int start : testStarts) {
+            int distance = g.bfs(start, 36);
+            System.out.println("From position " + start + " to 36: " + distance + " moves");
+        }
+        
+        // Performance test
+        System.out.println("\n=== Performance Test ===");
+        long startTime = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            g.bfs(1, 36);
+        }
+        long endTime = System.currentTimeMillis();
+        System.out.println("1000 BFS operations completed in: " + (endTime - startTime) + "ms");
+        
+        System.out.println("\n=== Summary ===");
+        System.out.println("Snakes and Ladders game implementation completed successfully");
+        System.out.println("Graph built with " + g.adjacencyList.size() + " nodes");
+        System.out.println("Shortest path from 1 to 36 requires " + shortestDistance + " moves");
+    }
+} 
+
+
+
 template < typename T>
 class graph
 {
