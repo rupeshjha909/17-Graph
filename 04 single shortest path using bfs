@@ -1,3 +1,41 @@
+// Function to return Breadth First Search Traversal of given graph.
+    public ArrayList<Integer> bfs(ArrayList<ArrayList<Integer>> adjacencyList) {
+        // code here
+        // Set to track visited nodes
+        Set<Integer> visited = new HashSet<>();
+        
+        // Queue for BFS traversal
+        Queue<Integer> queue = new LinkedList<>();
+        int src=0;
+        
+        // Add source to queue and mark as visited
+        queue.add(src);
+        visited.add(src);
+        ArrayList<Integer> ans=new ArrayList<>();
+        
+        //System.out.print("BFS traversal starting from " + src + ": ");
+        
+        while (!queue.isEmpty()) {
+            var node = queue.poll();
+            ans.add(node);
+            
+            // Get neighbors of current node
+            List<Integer> neighbors = adjacencyList.get(node);
+            if (neighbors != null) {
+                for (Integer neighbor : neighbors) {
+                    if (!visited.contains(neighbor)) {
+                        queue.add(neighbor);
+                        visited.add(neighbor);
+                    }
+                }
+            }
+        }
+        //System.out.println();
+        return ans;
+    }
+
+
+
 class Solution
 {
 public:
