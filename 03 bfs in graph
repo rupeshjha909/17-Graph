@@ -1,3 +1,111 @@
+import java.util.*;
+
+/**
+ * Graph Implementation in Java
+ * Converted from C++ template class to Java generic class
+ * Supports bidirectional edges and BFS traversal
+ */
+public class Graph<T> {
+    
+    // Map to store adjacency list: node -> list of neighbors
+    private Map<T, List<T>> adjacencyList;
+    
+    /**
+     * Constructor
+     */
+    public Graph() {
+        this.adjacencyList = new HashMap<>();
+    }
+    
+    /**
+     * Add bidirectional edge between nodes x and y
+     * 
+     * @param x first node
+     * @param y second node
+     */
+    public void addEdge(T x, T y) {
+        // Add y to x's adjacency list
+        adjacencyList.computeIfAbsent(x, k -> new ArrayList<>()).add(y);
+        
+        // Add x to y's adjacency list (bidirectional)
+        adjacencyList.computeIfAbsent(y, k -> new ArrayList<>()).add(x);
+    }
+    
+    /**
+     * Breadth First Search traversal starting from source node
+     * 
+     * @param src source node to start BFS from
+     */
+    public void bfs(T src) {
+        // Set to track visited nodes
+        Set<T> visited = new HashSet<>();
+        
+        // Queue for BFS traversal
+        Queue<T> queue = new LinkedList<>();
+        
+        // Add source to queue and mark as visited
+        queue.add(src);
+        visited.add(src);
+        
+        System.out.print("BFS traversal starting from " + src + ": ");
+        
+        while (!queue.isEmpty()) {
+            T node = queue.poll();
+            System.out.print(node + " ");
+            
+            // Get neighbors of current node
+            List<T> neighbors = adjacencyList.get(node);
+            if (neighbors != null) {
+                for (T neighbor : neighbors) {
+                    if (!visited.contains(neighbor)) {
+                        queue.add(neighbor);
+                        visited.add(neighbor);
+                    }
+                }
+            }
+        }
+        System.out.println();
+    }
+    
+    /**
+     * Print the adjacency list representation of the graph
+     */
+    public void printGraph() {
+        System.out.println("Graph Adjacency List:");
+        for (Map.Entry<T, List<T>> entry : adjacencyList.entrySet()) {
+            System.out.print(entry.getKey() + " -> ");
+            for (T neighbor : entry.getValue()) {
+                System.out.print(neighbor + " ");
+            }
+            System.out.println();
+        }
+    }
+    
+    public static void main(String[] args) {
+        // Create graph with Integer nodes (same as C++ example)
+        Graph<Integer> g = new Graph<>();
+        
+        // Add edges (same as C++ example)
+        g.addEdge(0, 1);
+        g.addEdge(0, 4);
+        g.addEdge(1, 2);
+        g.addEdge(2, 4);
+        g.addEdge(2, 3);
+        g.addEdge(3, 4);
+        g.addEdge(3, 5);
+        
+        // Print graph structure
+        g.printGraph();
+        
+        // Perform BFS (same as C++ example)
+        g.bfs(0);
+        
+    }
+} 
+
+
+
+
 template < typename T>
 class graph
 {
