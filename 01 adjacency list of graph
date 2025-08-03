@@ -1,5 +1,75 @@
 in this value of node must be less than n i.e number of vertices otherwise segmentation fault
 
+/**
+ * Graph class implementing adjacency list representation
+ * Uses ArrayList of LinkedList for efficient edge operations
+ */
+class Graph {
+    private int v;  // number of vertices
+    private ArrayList<LinkedList<Integer>> adjacencyList;  // array of lists (adjacency list)
+    
+    /**
+     * Constructor to initialize graph with given number of vertices
+     * @param v number of vertices (must be positive)
+     */
+    public Graph(int v) {
+        if (v <= 0) {
+            throw new IllegalArgumentException("Number of vertices must be positive");
+        }
+        this.v = v;
+        // Initialize adjacency list with empty linked lists
+        adjacencyList = new ArrayList<>();
+        for (int i = 0; i < v; i++) {
+            adjacencyList.add(new LinkedList<>());
+        }
+    }
+    
+    /**
+     * Adds a bidirectional edge between vertices x and y
+     * Validates that both vertices are within valid range [0, v-1]
+     * 
+     * @param x first vertex (must be < v)
+     * @param y second vertex (must be < v)
+     * @throws IllegalArgumentException if vertices are out of range
+     */
+    public void addEdge(int x, int y) {
+        // Validate vertex indices to prevent segmentation fault equivalent
+        if (x < 0 || x >= v || y < 0 || y >= v) {
+            throw new IllegalArgumentException("Vertex indices must be between 0 and " + (v-1));
+        }
+        
+        // Add bidirectional edge (undirected graph)
+        adjacencyList.get(x).add(y);
+        adjacencyList.get(y).add(x);
+    }
+    
+    /**
+     * Prints the adjacency list representation of the graph
+     * Shows all vertices and their neighbors
+     */
+    public void printAdjList() {
+        // Iterate over all vertices
+        for (int i = 0; i < v; i++) {
+            System.out.print("Vertex " + i + " -> ");
+            
+            // Print all neighbors of current vertex
+            LinkedList<Integer> neighbors = adjacencyList.get(i);
+            for (int j = 0; j < neighbors.size(); j++) {
+                System.out.print(neighbors.get(j));
+                if (j < neighbors.size() - 1) {
+                    System.out.print(", ");
+                }
+            }
+            System.out.println();
+        }
+    }
+} 
+
+
+
+
+
+
 class graph
 {
 	int v;
