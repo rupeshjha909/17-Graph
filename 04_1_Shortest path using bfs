@@ -1,5 +1,76 @@
 == Shortest path algorithm
 
+import java.util.*;
+
+class Graph {
+    private Map<Integer, List<Integer>> adjacencyList;
+    
+    public Graph() {
+        adjacencyList = new HashMap<>();
+    }
+    
+    public void addEdge(int x, int y) {
+        // Add edge from x to y
+        adjacencyList.computeIfAbsent(x, k -> new ArrayList<>()).add(y);
+        // Add edge from y to x (undirected graph)
+        adjacencyList.computeIfAbsent(y, k -> new ArrayList<>()).add(x);
+    }
+    
+    public void bfs(int src) {
+        Map<Integer, Integer> dist = new HashMap<>();
+        Queue<Integer> queue = new LinkedList<>();
+        
+        // Initialize all distances to infinity
+        for (int node : adjacencyList.keySet()) {
+            dist.put(node, Integer.MAX_VALUE);
+        }
+        
+        // Set source distance to 0 and add to queue
+        queue.offer(src);
+        dist.put(src, 0);
+        
+        while (!queue.isEmpty()) {
+            int node = queue.poll();
+            // System.out.print(node + " ");
+            
+            // Process all neighbors
+            List<Integer> neighbors = adjacencyList.get(node);
+            if (neighbors != null) {
+                for (int nbr : neighbors) {
+                    if (dist.get(nbr) == Integer.MAX_VALUE) {
+                        queue.offer(nbr);
+                        dist.put(nbr, dist.get(node) + 1);
+                    }
+                }
+            }
+        }
+        
+        // Print distances
+        for (Map.Entry<Integer, Integer> entry : dist.entrySet()) {
+            int node = entry.getKey();
+            int distance = entry.getValue();
+            System.out.println("node " + node + " d from src " + distance);
+        }
+    }
+}
+
+public class ShortestPathBFS {
+    public static void main(String[] args) {
+        Graph g = new Graph();
+        g.addEdge(0, 1);
+        g.addEdge(0, 3);
+        g.addEdge(1, 2);
+        g.addEdge(2, 3);
+        g.addEdge(3, 4);
+        g.addEdge(4, 5);
+        g.bfs(0);
+    }
+} 
+
+
+
+
+
 class graph {
 	map < int, list<int> >l;
 public:
