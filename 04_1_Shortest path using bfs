@@ -18,7 +18,7 @@ class Graph {
     
     public void bfs(int src) {
         Map<Integer, Integer> dist = new HashMap<>();
-        Queue<Integer> queue = new LinkedList<>();
+        Queue<Integer> queue = new ArrayDeque<>();
         
         // Initialize all distances to infinity
         for (int node : adjacencyList.keySet()) {
