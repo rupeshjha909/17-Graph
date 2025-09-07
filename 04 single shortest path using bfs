@@ -1,35 +1,35 @@
 // Function to return Breadth First Search Traversal of given graph.
     public ArrayList<Integer> shortestPath(ArrayList<ArrayList<Integer>> adjacencyList, int src) {
-    int v = adjacencyList.size();
-    ArrayList<Integer> dist = new ArrayList<>();
-    
-    // Initialize distances with Integer.MAX_VALUE (equivalent to INT_MAX)
-    for (int i = 0; i < v; i++) {
-        dist.add(Integer.MAX_VALUE);
-    }
-    
-    // Queue for BFS traversal
-    Queue<Integer> queue = new ArrayDeque<>();
-    queue.add(src);
-    dist.set(src, 0);
-    
-    while (!queue.isEmpty()) {
-        int node = queue.poll();
-        
-        // Get neighbors of current node
-        ArrayList<Integer> neighbors = adjacencyList.get(node);
-        if (neighbors != null) {
-            for (int neighbor : neighbors) {
-                if (dist.get(neighbor) == Integer.MAX_VALUE) {
-                    dist.set(neighbor, dist.get(node) + 1);
-                    queue.add(neighbor);
-                }
-            }
-        }
-    }
-    
-    return dist;
-}
+	    int v = adjacencyList.size();
+	    ArrayList<Integer> dist = new ArrayList<>();
+	    
+	    // Initialize distances with Integer.MAX_VALUE (equivalent to INT_MAX)
+	    for (int i = 0; i < v; i++) {
+	        dist.add(Integer.MAX_VALUE);
+	    }
+	    
+	    // Queue for BFS traversal
+	    Queue<Integer> queue = new ArrayDeque<>();
+	    queue.add(src);
+	    dist.set(src, 0);
+	    
+	    while (!queue.isEmpty()) {
+	        int node = queue.poll();
+	        
+	        // Get neighbors of current node
+	        ArrayList<Integer> neighbors = adjacencyList.get(node);
+	        if (neighbors != null) {
+	            for (int neighbor : neighbors) {
+	                if (dist.get(neighbor) == Integer.MAX_VALUE) {
+	                    dist.set(neighbor, dist.get(node) + 1);
+	                    queue.add(neighbor);
+	                }
+	            }
+	        }
+	    }
+	    
+	    return dist;
+	}
 
 
 
