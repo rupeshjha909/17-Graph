@@ -1,3 +1,61 @@
+// Global array to count cells in each island (equivalent to col_cnt)
+private static int[] colCnt = new int[1000];
+
+// Direction arrays for 4-directional movement
+private static int[] dx = {1, -1, 0, 0};
+private static int[] dy = {0, 0, 1, -1};
+
+private void dfs(ArrayList<ArrayList<Integer>> grid, int curr, int curc, int r, int c, int color, ArrayList<ArrayList<Integer>> vis) {
+    // Mark current cell with color and as visited
+    grid.get(curr).set(curc, color);
+    vis.get(curr).set(curc, 1);
+    colCnt[color]++;
+    
+    // Check all 4 directions
+    for (int k = 0; k < 4; k++) {
+        int nx = curr + dx[k];
+        int ny = curc + dy[k];
+        
+        // Boundary check and unvisited land cell check
+        if (nx >= 0 && nx < r && ny >= 0 && ny < c && 
+            grid.get(nx).get(ny) == 1 && vis.get(nx).get(ny) == 0) {
+            dfs(grid, nx, ny, r, c, color, vis);
+        }
+    }
+}
+
+// Function to find the number of islands
+public int numIslands(ArrayList<ArrayList<Integer>> grid) {
+    int r = grid.size();
+    int c = grid.get(0).size();
+    
+    // Initialize visited array
+    ArrayList<ArrayList<Integer>> vis = new ArrayList<>();
+    for (int i = 0; i < r; i++) {
+        ArrayList<Integer> row = new ArrayList<>();
+        for (int j = 0; j < c; j++) {
+            row.add(0);
+        }
+        vis.add(row);
+    }
+    
+    int ans = 0;
+    
+    // Traverse the grid
+    for (int i = 0; i < r; i++) {
+        for (int j = 0; j < c; j++) {
+            if (grid.get(i).get(j) == 1 && vis.get(i).get(j) == 0) {
+                ans++;
+                dfs(grid, i, j, r, c, ans, vis);
+            }
+        }
+    }
+    
+    return ans;
+}
+
+
+
 //this problem is noting but find the total size of the island found
 // colored with one color
 int col_cnt[1000];
