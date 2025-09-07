@@ -1,3 +1,100 @@
+import java.util.*;
+
+public class FloodFill {
+    private static final int N = 100;
+    
+    // Global arrays
+    private static int[][] a = new int[N][N];
+    private static int[][] vis = new int[N][N];
+    private static int[] colCnt = new int[N];
+    
+    private static int n, m;
+    
+    // Direction arrays for 4-directional movement
+    private static int[] dx = {0, 0, 1, -1};
+    private static int[] dy = {1, -1, 0, 0};
+    
+    private static void floodFill(int x, int y, int col) {
+        a[x][y] = col;
+        colCnt[col]++;
+        vis[x][y] = 1;
+        
+        for (int i = 0; i < 4; i++) {
+            int xx = x + dx[i];
+            int yy = y + dy[i];
+            
+            if (xx >= 0 && xx < n && yy >= 0 && yy < m && 
+                vis[xx][yy] == 0 && a[xx][yy] == 1) {
+                floodFill(xx, yy, col);
+            }
+        }
+    }
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        n = scanner.nextInt();
+        m = scanner.nextInt();
+        
+        // Read the grid
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                a[i][j] = scanner.nextInt();
+            }
+        }
+        
+        int totalCount = 0;
+        
+        // Find all islands using flood fill
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (a[i][j] == 1 && vis[i][j] == 0) {
+                    totalCount++;
+                    floodFill(i, j, totalCount);
+                }
+            }
+        }
+        
+        int largestIsland = 0;
+        
+        // Find the largest existing island
+        for (int i = 1; i <= totalCount; i++) {
+            largestIsland = Math.max(largestIsland, colCnt[i]);
+        }
+        
+        // Check if we can create a larger island by converting a 0 to 1
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < m; j++) {
+                if (a[i][j] == 0) {
+                    // Can be converted - check adjacent islands
+                    Set<Integer> uniqueColors = new HashSet<>();
+                    
+                    for (int k = 0; k < 4; k++) {
+                        int ii = i + dx[k];
+                        int jj = j + dy[k];
+                        
+                        if (ii >= 0 && ii < n && jj >= 0 && jj < m) {
+                            uniqueColors.add(a[ii][jj]);
+                        }
+                    }
+                    
+                    int ans = 1; // We have changed one cell (0 to 1)
+                    for (int color : uniqueColors) {
+                        ans += colCnt[color];
+                    }
+                    
+                    largestIsland = Math.max(largestIsland, ans);
+                }
+            }
+        }
+        
+        System.out.println(largestIsland);
+        scanner.close();
+    }
+}
+
+
+
 const int N = 100;
 
 int a[N][N], vis[N][N];
