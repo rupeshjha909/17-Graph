@@ -37,35 +37,35 @@ public class Graph<T> {
      * @param src source node to start BFS from
      */
     public void bfs(T src) {
-        // Set to track visited nodes
-        Set<T> visited = new HashSet<>();
-        
-        // Queue for BFS traversal
-        Queue<T> queue = new LinkedList<>();
-        
-        // Add source to queue and mark as visited
-        queue.add(src);
-        visited.add(src);
-        
-        System.out.print("BFS traversal starting from " + src + ": ");
-        
-        while (!queue.isEmpty()) {
-            T node = queue.poll();
-            System.out.print(node + " ");
-            
-            // Get neighbors of current node
-            List<T> neighbors = adjacencyList.get(node);
-            if (neighbors != null) {
-                for (T neighbor : neighbors) {
-                    if (!visited.contains(neighbor)) {
-                        queue.add(neighbor);
-                        visited.add(neighbor);
-                    }
-                }
-            }
-        }
-        System.out.println();
-    }
+	    // Set to track visited nodes
+	    Set<T> visited = new HashSet<>();
+	    
+	    // Queue for BFS traversal - using ArrayDeque instead of LinkedList
+	    Queue<T> queue = new ArrayDeque<>();
+	    
+	    // Add source to queue and mark as visited
+	    queue.add(src);
+	    visited.add(src);
+	    
+	    System.out.print("BFS traversal starting from " + src + ": ");
+	    
+	    while (!queue.isEmpty()) {
+	        T node = queue.poll();
+	        System.out.print(node + " ");
+	        
+	        // Get neighbors of current node
+	        List<T> neighbors = adjacencyList.get(node);
+	        if (neighbors != null) {
+	            for (T neighbor : neighbors) {
+	                if (!visited.contains(neighbor)) {
+	                    queue.add(neighbor);
+	                    visited.add(neighbor);
+	                }
+	            }
+	        }
+	    }
+	    System.out.println();
+	}
     
     /**
      * Print the adjacency list representation of the graph
