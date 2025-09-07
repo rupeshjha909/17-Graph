@@ -1,38 +1,35 @@
 // Function to return Breadth First Search Traversal of given graph.
-    public ArrayList<Integer> bfs(ArrayList<ArrayList<Integer>> adjacencyList) {
-        // code here
-        // Set to track visited nodes
-        Set<Integer> visited = new HashSet<>();
+    public ArrayList<Integer> shortestPath(ArrayList<ArrayList<Integer>> adjacencyList, int src) {
+    int v = adjacencyList.size();
+    ArrayList<Integer> dist = new ArrayList<>();
+    
+    // Initialize distances with Integer.MAX_VALUE (equivalent to INT_MAX)
+    for (int i = 0; i < v; i++) {
+        dist.add(Integer.MAX_VALUE);
+    }
+    
+    // Queue for BFS traversal
+    Queue<Integer> queue = new ArrayDeque<>();
+    queue.add(src);
+    dist.set(src, 0);
+    
+    while (!queue.isEmpty()) {
+        int node = queue.poll();
         
-        // Queue for BFS traversal
-        Queue<Integer> queue = new LinkedList<>();
-        int src=0;
-        
-        // Add source to queue and mark as visited
-        queue.add(src);
-        visited.add(src);
-        ArrayList<Integer> ans=new ArrayList<>();
-        
-        //System.out.print("BFS traversal starting from " + src + ": ");
-        
-        while (!queue.isEmpty()) {
-            var node = queue.poll();
-            ans.add(node);
-            
-            // Get neighbors of current node
-            List<Integer> neighbors = adjacencyList.get(node);
-            if (neighbors != null) {
-                for (Integer neighbor : neighbors) {
-                    if (!visited.contains(neighbor)) {
-                        queue.add(neighbor);
-                        visited.add(neighbor);
-                    }
+        // Get neighbors of current node
+        ArrayList<Integer> neighbors = adjacencyList.get(node);
+        if (neighbors != null) {
+            for (int neighbor : neighbors) {
+                if (dist.get(neighbor) == Integer.MAX_VALUE) {
+                    dist.set(neighbor, dist.get(node) + 1);
+                    queue.add(neighbor);
                 }
             }
         }
-        //System.out.println();
-        return ans;
     }
+    
+    return dist;
+}
 
 
 
