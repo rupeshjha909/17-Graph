@@ -20,6 +20,8 @@
 ```
 
 ### SVG Diagram (Renders in GitHub / VSCode preview)
+<img width="621" height="550" alt="image" src="https://github.com/user-attachments/assets/7ca86a4e-ceb5-438d-a686-84f4f0469923" />
+
 
 <svg width="100%" viewBox="0 0 680 540" xmlns="http://www.w3.org/2000/svg">
   <text x="340" y="30" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="500">BFS traversal from source node 0</text>
