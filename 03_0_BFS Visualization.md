@@ -21,12 +21,10 @@
 
 ### SVG Diagram (Renders in GitHub / VSCode preview)
 
-```svg
 <svg width="100%" viewBox="0 0 680 540" xmlns="http://www.w3.org/2000/svg">
   <text x="340" y="30" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="500">BFS traversal from source node 0</text>
   <text x="340" y="48" text-anchor="middle" font-family="sans-serif" font-size="13" fill="#666">Visit order: 0 → 1 → 4 → 2 → 3 → 5</text>
 
-  <!-- Edges -->
   <line x1="160" y1="140" x2="260" y2="100" stroke="#888" stroke-width="1"/>
   <line x1="160" y1="140" x2="160" y2="240" stroke="#888" stroke-width="1"/>
   <line x1="260" y1="100" x2="360" y2="180" stroke="#888" stroke-width="1"/>
@@ -35,7 +33,6 @@
   <line x1="160" y1="240" x2="280" y2="280" stroke="#888" stroke-width="1"/>
   <line x1="280" y1="280" x2="200" y2="380" stroke="#888" stroke-width="1"/>
 
-  <!-- Nodes -->
   <circle cx="160" cy="140" r="26" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5"/>
   <text x="160" y="146" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="500" fill="#412402">0</text>
 
@@ -54,7 +51,6 @@
   <circle cx="200" cy="380" r="26" fill="#FAEEDA" stroke="#BA7517" stroke-width="1.5"/>
   <text x="200" y="386" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="500" fill="#412402">5</text>
 
-  <!-- Level labels -->
   <text x="118" y="106" font-family="sans-serif" font-size="12" fill="#666">L0</text>
   <text x="296" y="68" font-family="sans-serif" font-size="12" fill="#666">L1</text>
   <text x="118" y="206" font-family="sans-serif" font-size="12" fill="#666">L1</text>
@@ -62,7 +58,6 @@
   <text x="316" y="248" font-family="sans-serif" font-size="12" fill="#666">L2</text>
   <text x="236" y="346" font-family="sans-serif" font-size="12" fill="#666">L3</text>
 
-  <!-- Step-by-step trace box -->
   <rect x="450" y="80" width="200" height="380" rx="12" fill="none" stroke="#888" stroke-width="0.5" stroke-dasharray="4 3"/>
   <text x="550" y="105" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="500">Step-by-step trace</text>
 
@@ -90,7 +85,6 @@
   <text x="340" y="500" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="500">BFS output: 0 1 4 2 3 5</text>
   <text x="340" y="520" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#666">Level-by-level: closer nodes first, farther nodes later</text>
 </svg>
-```
 
 ---
 
