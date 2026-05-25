@@ -1,3 +1,89 @@
+import java.util.*;
+
+public class FloydWarshall {
+    
+    // Sentinel for "infinity" / unreachable
+    // Using a value that's large but won't overflow when added to another
+    private static final long INF = (long) 1e18;
+    
+    /**
+     * Floyd-Warshall All-Pairs Shortest Path algorithm.
+     * 
+     * Computes shortest distance between every pair of vertices.
+     * Handles negative edge weights (but not negative cycles).
+     * 
+     * Time Complexity: O(V^3)
+     * Space Complexity: O(V^2)
+     * 
+     * @param graph 2D matrix where graph[i][j] = weight of edge i→j (INF if no edge)
+     *              graph[i][i] should be 0 for all i
+     */
+    public static void floyd(long[][] graph) {
+        int n = graph.length;
+        
+        // Copy graph into dist (we don't want to modify the input)
+        long[][] dist = new long[n][n];
+        for (int i = 0; i < n; i++) {
+            dist[i] = graph[i].clone();
+        }
+        
+        // The "k phases" — k is the intermediate vertex being considered
+        // After phase k, dist[i][j] = shortest path from i to j using
+        // only vertices {0, 1, ..., k} as intermediate stops.
+        for (int k = 0; k < n; k++) {
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    // Skip if either edge to/from k is INF (avoid overflow)
+                    if (dist[i][k] == INF || dist[k][j] == INF) continue;
+                    
+                    // Relaxation: is going through k shorter?
+                    if (dist[i][k] + dist[k][j] < dist[i][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
+                    }
+                }
+            }
+        }
+        
+        // Optional: detect negative cycle
+        // If dist[i][i] < 0 for any vertex i, that vertex is in a negative cycle
+        for (int i = 0; i < n; i++) {
+            if (dist[i][i] < 0) {
+                System.out.println("Negative cycle detected involving vertex " + (i + 1));
+            }
+        }
+        
+        // Print the result
+        for (int i = 0; i < n; i++) {
+            System.out.print("From " + (i + 1) + " -> ");
+            for (int j = 0; j < n; j++) {
+                if (dist[i][j] == INF) {
+                    System.out.print("INF ");
+                } else {
+                    System.out.print(dist[i][j] + " ");
+                }
+            }
+            System.out.println();
+        }
+    }
+    
+    public static void main(String[] args) {
+        // Sample input from the C++ example
+        // 4 vertices; INF for missing edges
+        long[][] graph = {
+            {0,   INF, -2,  INF},
+            {4,   0,   3,   INF},
+            {INF, INF, 0,   2  },
+            {INF, -1,  INF, 0  }
+        };
+        
+        floyd(graph);
+    }
+}
+
+
+
+
+
 
 /*
 - all pair shortest path
