@@ -1,3 +1,192 @@
+import java.util.*;
+
+/**
+ * Generic graph class supporting Dijkstra's Single Source Shortest Path.
+ * @param <T> The type of vertices (can be Integer, String, etc.)
+ */
+public class DijkstraGraph<T> {
+    
+    // Adjacency list: vertex → list of {neighbor, distance} pairs
+    // Each "Edge" stored as Object[]{T neighbor, Integer dist}
+    private Map<T, List<Object[]>> adj;
+    
+    public DijkstraGraph() {
+        this.adj = new HashMap<>();
+    }
+    
+    /**
+     * Add an edge between u and v with given distance.
+     * @param u Source vertex
+     * @param v Destination vertex
+     * @param dist Edge weight (must be non-negative for Dijkstra)
+     * @param bidir If true, also add reverse edge (undirected)
+     */
+    public void addEdge(T u, T v, int dist, boolean bidir) {
+        adj.computeIfAbsent(u, k -> new ArrayList<>()).add(new Object[]{v, dist});
+        if (bidir) {
+            adj.computeIfAbsent(v, k -> new ArrayList<>()).add(new Object[]{u, dist});
+        }
+    }
+    
+    /**
+     * Convenience overload — defaults to bidirectional (undirected).
+     */
+    public void addEdge(T u, T v, int dist) {
+        addEdge(u, v, dist, true);
+    }
+    
+    /**
+     * Print the adjacency list for debugging.
+     */
+    public void printAdj() {
+        for (Map.Entry<T, List<Object[]>> entry : adj.entrySet()) {
+            T node = entry.getKey();
+            System.out.print(node + " --> ");
+            for (Object[] nbr : entry.getValue()) {
+                @SuppressWarnings("unchecked")
+                T city = (T) nbr[0];
+                int dist = (int) nbr[1];
+                System.out.print("(" + city + "," + dist + ")");
+            }
+            System.out.println();
+        }
+    }
+    
+    /**
+     * Dijkstra's Single Source Shortest Path algorithm.
+     * Computes shortest distance from src to every other vertex.
+     *
+     * Uses a TreeSet (sorted set) to simulate the C++ std::set behavior:
+     *   - Always extract the entry with minimum distance.
+     *   - Update by remove + re-insert.
+     *
+     * Time complexity: O((V + E) log V)
+     * Space complexity: O(V + E)
+     *
+     * @param src Source vertex
+     */
+    public void dijkstraSSSP(T src) {
+        // Step 1: Initialize all distances to "infinity"
+        Map<T, Integer> dist = new HashMap<>();
+        for (T node : adj.keySet()) {
+            dist.put(node, Integer.MAX_VALUE);
+        }
+        
+        // Step 2: Use a TreeSet ordered by (distance, vertex)
+        // The natural ordering will sort by distance first (the int[0])
+        TreeSet<Object[]> set = new TreeSet<>((a, b) -> {
+            int distCompare = Integer.compare((int) a[0], (int) b[0]);
+            if (distCompare != 0) return distCompare;
+            // Tie-break by vertex hashCode or string representation
+            return Integer.compare(a[1].hashCode(), b[1].hashCode());
+        });
+        
+        // Set source distance to 0 and insert into set
+        dist.put(src, 0);
+        set.add(new Object[]{0, src});
+        
+        while (!set.isEmpty()) {
+            // Extract entry with smallest distance
+            Object[] first = set.first();
+            set.remove(first);
+            
+            int nodeDist = (int) first[0];
+            @SuppressWarnings("unchecked")
+            T node = (T) first[1];
+            
+            // Iterate over neighbors of current node
+            List<Object[]> neighbors = adj.getOrDefault(node, new ArrayList<>());
+            for (Object[] childPair : neighbors) {
+                @SuppressWarnings("unchecked")
+                T child = (T) childPair[0];
+                int childDist = (int) childPair[1];
+                
+                // Relaxation: if we found a shorter path to child
+                if (nodeDist + childDist < dist.get(child)) {
+                    // Remove old entry from set (if exists)
+                    Object[] oldEntry = new Object[]{dist.get(child), child};
+                    set.remove(oldEntry);
+                    
+                    // Update distance and insert new entry
+                    dist.put(child, nodeDist + childDist);
+                    set.add(new Object[]{dist.get(child), child});
+                }
+            }
+        }
+        
+        // Print distances
+        for (Map.Entry<T, Integer> d : dist.entrySet()) {
+            System.out.println(d.getKey() + " is located at distance of " + d.getValue());
+        }
+    }
+    
+    /**
+     * Alternative Dijkstra implementation using PriorityQueue (more idiomatic Java).
+     * Uses "lazy deletion" — skip stale entries instead of removing.
+     */
+    public Map<T, Integer> dijkstraSSSPwithPQ(T src) {
+        Map<T, Integer> dist = new HashMap<>();
+        for (T node : adj.keySet()) {
+            dist.put(node, Integer.MAX_VALUE);
+        }
+        dist.put(src, 0);
+        
+        // Min-heap ordered by distance
+        PriorityQueue<Object[]> pq = new PriorityQueue<>((a, b) -> 
+            Integer.compare((int) a[0], (int) b[0])
+        );
+        pq.offer(new Object[]{0, src});
+        
+        while (!pq.isEmpty()) {
+            Object[] curr = pq.poll();
+            int nodeDist = (int) curr[0];
+            @SuppressWarnings("unchecked")
+            T node = (T) curr[1];
+            
+            // Lazy deletion: skip if this is a stale entry
+            if (nodeDist > dist.get(node)) continue;
+            
+            for (Object[] childPair : adj.getOrDefault(node, new ArrayList<>())) {
+                @SuppressWarnings("unchecked")
+                T child = (T) childPair[0];
+                int childDist = (int) childPair[1];
+                
+                int newDist = nodeDist + childDist;
+                if (newDist < dist.get(child)) {
+                    dist.put(child, newDist);
+                    pq.offer(new Object[]{newDist, child});
+                }
+            }
+        }
+        
+        return dist;
+    }
+    
+    public static void main(String[] args) {
+        DijkstraGraph<Integer> g = new DijkstraGraph<>();
+        g.addEdge(1, 2, 1);
+        g.addEdge(1, 3, 4);
+        g.addEdge(2, 3, 1);
+        g.addEdge(3, 4, 2);
+        g.addEdge(1, 4, 7);
+        
+        System.out.println("Adjacency list:");
+        g.printAdj();
+        
+        System.out.println("\nDijkstra SSSP from source 1:");
+        g.dijkstraSSSP(1);
+        
+        System.out.println("\nUsing PriorityQueue variant:");
+        Map<Integer, Integer> distances = g.dijkstraSSSPwithPQ(1);
+        for (Map.Entry<Integer, Integer> e : distances.entrySet()) {
+            System.out.println(e.getKey() + " is located at distance of " + e.getValue());
+        }
+    }
+}
+
+
+
+
 template < typename T>
 class graph {
 	unordered_map < T, list < pair <T, int> > >m;
