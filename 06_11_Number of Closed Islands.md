@@ -174,13 +174,19 @@ class Solution {
         return count;
     }
 
+    private int[] dr = {1, -1, 0, 0};
+    private int[] dc = {0, 0, 1, -1};
+    
     private void sink(int[][] grid, int r, int c, int R, int C) {
-        if (r < 0 || r >= R || c < 0 || c >= C || grid[r][c] != 0) return;
-        grid[r][c] = 1;                       // turn land into water
-        sink(grid, r+1, c, R, C);
-        sink(grid, r-1, c, R, C);
-        sink(grid, r, c+1, R, C);
-        sink(grid, r, c-1, R, C);
+        grid[r][c] = 1;                        // turn land into water
+    
+        for (int k = 0; k < 4; k++) {
+            int nr = r + dr[k];
+            int nc = c + dc[k];
+            if (nr >= 0 && nr < R && nc >= 0 && nc < C && grid[nr][nc] == 0) {
+                sink(grid, nr, nc, R, C);
+            }
+        }
     }
 }
 ```
