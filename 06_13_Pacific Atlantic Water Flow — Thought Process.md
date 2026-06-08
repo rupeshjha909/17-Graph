@@ -181,46 +181,48 @@ These are the cells where water can drain to both oceans. Notice the four *corne
 
 ```java
 class Solution {
-    private int[] dr = {1, -1, 0, 0};
-    private int[] dc = {0, 0, 1, -1};
+    private int[] dRow = {1, -1, 0, 0};
+    private int[] dCol = {0, 0, 1, -1};
 
     public List<List<Integer>> pacificAtlantic(int[][] heights) {
         List<List<Integer>> result = new ArrayList<>();
         if (heights == null || heights.length == 0) return result;
 
-        int R = heights.length, C = heights[0].length;
-        boolean[][] pacific  = new boolean[R][C];
-        boolean[][] atlantic = new boolean[R][C];
+        int rows = heights.length, cols = heights[0].length;
+        boolean[][] pacific  = new boolean[rows][cols];
+        boolean[][] atlantic = new boolean[rows][cols];
 
-        // Seed Pacific from top row + left column; Atlantic from bottom row + right column
-        for (int c = 0; c < C; c++) {
-            dfs(heights, 0,   c, pacific,  R, C);   // top row    → Pacific
-            dfs(heights, R-1, c, atlantic, R, C);   // bottom row → Atlantic
+        // Seed Pacific from top row + left column
+        // Seed Atlantic from bottom row + right column
+        for (int col = 0; col < cols; col++) {
+            dfs(heights, 0,        col, pacific,  rows, cols);   // top row    → Pacific
+            dfs(heights, rows - 1, col, atlantic, rows, cols);   // bottom row → Atlantic
         }
-        for (int r = 0; r < R; r++) {
-            dfs(heights, r, 0,   pacific,  R, C);   // left col   → Pacific
-            dfs(heights, r, C-1, atlantic, R, C);   // right col  → Atlantic
+        for (int row = 0; row < rows; row++) {
+            dfs(heights, row, 0,        pacific,  rows, cols);   // left col   → Pacific
+            dfs(heights, row, cols - 1, atlantic, rows, cols);   // right col  → Atlantic
         }
 
-        // Intersection: cells reachable from both oceans
-        for (int r = 0; r < R; r++) {
-            for (int c = 0; c < C; c++) {
-                if (pacific[r][c] && atlantic[r][c]) {
-                    result.add(Arrays.asList(r, c));
+        // Cells reachable from both oceans
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                if (pacific[row][col] && atlantic[row][col]) {
+                    result.add(Arrays.asList(row, col));
                 }
             }
         }
         return result;
     }
 
-    private void dfs(int[][] heights, int r, int c, boolean[][] ocean, int R, int C) {
-        ocean[r][c] = true;
+    private void dfs(int[][] heights, int row, int col, boolean[][] ocean, int rows, int cols) {
+        ocean[row][col] = true;
         for (int k = 0; k < 4; k++) {
-            int nr = r + dr[k], nc = c + dc[k];
-            if (nr >= 0 && nr < R && nc >= 0 && nc < C
-                && !ocean[nr][nc]
-                && heights[nr][nc] >= heights[r][c]) {   // climb uphill (reversed flow)
-                dfs(heights, nr, nc, ocean, R, C);
+            int newRow = row + dRow[k];
+            int newCol = col + dCol[k];
+            if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols
+                && !ocean[newRow][newCol]
+                && heights[newRow][newCol] >= heights[row][col]) {   // climb uphill
+                dfs(heights, newRow, newCol, ocean, rows, cols);
             }
         }
     }
