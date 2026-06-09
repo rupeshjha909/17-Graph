@@ -8,13 +8,16 @@ import java.util.*;
  * same island if 4-directionally adjacent.
  *
  * Approach: "color connected components, then query" — two passes, O(n^2).
- *   Pass 1: flood-fill each island with a unique color id (>= 2), record its size.
+ *   Pass 1: flood-fill each island with a unique color id (>= 2). The DFS is VOID:
+ *           it colors each cell and increments colCnt[color] as it goes, so after
+ *           the fill, colCnt[color] holds that island's size.
  *   Pass 2: for each 0, sum the sizes of its DISTINCT neighbor islands + 1.
  *   Answer: max(largest existing island, best Pass-2 candidate).
  *
  * Key points:
  *   - Color ids start at 2 so they never collide with water(0) or unvisited land(1);
  *     this lets the color double as the visited marker (no separate visited[][] needed).
+ *   - colCnt[color] tracks each island's size (filled inside the void DFS).
  *   - A Set deduplicates neighbor islands so a 0 touching the same island on multiple
  *     sides (U/L shapes) is not double-counted.
  *   - Edge cases: all water -> 1; all land -> largest existing island.
@@ -22,31 +25,32 @@ import java.util.*;
 public class MakingLargeIsland {
 
     private int n;
+    private int[] colCnt;                    // colCnt[color] = size of that island
     private final int[] dx = {0, 0, 1, -1};
     private final int[] dy = {1, -1, 0, 0};
 
     public int largestIsland(int[][] grid) {
         n = grid.length;
-        Map<Integer, Integer> sizeOf = new HashMap<>();
-        int color = 2;                          // start at 2: avoid clash with water(0)/land(1)
+        colCnt = new int[n * n + 2];         // colors range over [2 .. n*n+1]
 
-        // Pass 1: color each island, record its size
+        // Pass 1: color each island; the void DFS fills colCnt[color] with its size
+        int color = 2;                       // start at 2: avoid clash with water(0)/land(1)
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (grid[i][j] == 1) {
-                    sizeOf.put(color, dfs(grid, i, j, color));
+                    dfs(grid, i, j, color);
                     color++;
                 }
             }
         }
 
-        // If there are no islands at all, flipping any 0 yields a single cell
-        if (sizeOf.isEmpty()) return 1;
+        // Largest existing island (also covers the "all land, no useful flip" case)
+        int best = 0;
+        for (int c = 2; c < color; c++) {
+            best = Math.max(best, colCnt[c]);
+        }
 
-        // Start with the largest island as-is (covers the "no useful flip" case)
-        int best = Collections.max(sizeOf.values());
-
-        // Pass 2: try flipping each 0; sum the DISTINCT neighbor islands
+        // Pass 2: try flipping each 0; sum the DISTINCT neighbor islands + 1
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
                 if (grid[i][j] == 0) {
@@ -59,7 +63,7 @@ public class MakingLargeIsland {
                     }
                     int candidate = 1;                          // the flipped cell itself
                     for (int id : neighborIslands) {
-                        candidate += sizeOf.get(id);
+                        candidate += colCnt[id];
                     }
                     best = Math.max(best, candidate);
                 }
@@ -68,15 +72,17 @@ public class MakingLargeIsland {
         return best;
     }
 
-    /** Flood-fill the island starting at (i, j), color its cells, return the size. */
-    private int dfs(int[][] grid, int i, int j, int color) {
-        if (i < 0 || i >= n || j < 0 || j >= n || grid[i][j] != 1) return 0;
-        grid[i][j] = color;                     // color = visited marker (>= 2)
-        int size = 1;
+    /** Flood-fill: color this cell, count it toward its island, recurse on land neighbors. */
+    private void dfs(int[][] grid, int i, int j, int color) {
+        grid[i][j] = color;                  // color = visited marker (>= 2)
+        colCnt[color]++;                     // count this cell toward the island's size
+
         for (int k = 0; k < 4; k++) {
-            size += dfs(grid, i + dx[k], j + dy[k], color);
+            int ni = i + dx[k], nj = j + dy[k];
+            if (ni >= 0 && ni < n && nj >= 0 && nj < n && grid[ni][nj] == 1) {
+                dfs(grid, ni, nj, color);    // only unvisited land is still == 1
+            }
         }
-        return size;
     }
 
     // ---------------------------------------------------------------------
