@@ -1,40 +1,41 @@
 class Solution {
-    public int closedIsland(int[][] grid) {
-        int R = grid.length, C = grid[0].length;
+    private int[] dr = {1, -1, 0, 0};
+    private int[] dc = {0, 0, 1, -1};
 
-        // Phase 1: sink all land connected to the boundary
-        for (int r = 0; r < R; r++) {
-            for (int c = 0; c < C; c++) {
-                if ((r == 0 || r == R-1 || c == 0 || c == C-1) && grid[r][c] == 0) {
-                    sink(grid, r, c, R, C);
+    public int closedIsland(int[][] grid) {
+        if (grid == null || grid.length == 0 || grid[0].length == 0) return 0;
+        int rows = grid.length, cols = grid[0].length;
+
+        // Phase 1: sink land connected to the border
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
+                boolean onBorder = (r == 0 || r == rows - 1 || c == 0 || c == cols - 1);
+                if (onBorder && grid[r][c] == 0) {
+                    sink(grid, r, c, rows, cols);
                 }
             }
         }
 
-        // Phase 2: count remaining islands (these are closed)
+        // Phase 2: count remaining (closed) islands
         int count = 0;
-        for (int r = 0; r < R; r++) {
-            for (int c = 0; c < C; c++) {
+        for (int r = 0; r < rows; r++) {
+            for (int c = 0; c < cols; c++) {
                 if (grid[r][c] == 0) {
                     count++;
-                    sink(grid, r, c, R, C);   // mark this island as counted
+                    sink(grid, r, c, rows, cols);
                 }
             }
         }
         return count;
     }
 
-    private int[] dr = {1, -1, 0, 0};
-    private int[] dc = {0, 0, 1, -1};
-    
-    private void sink(int[][] grid, int r, int c, int R, int C) {
-        grid[r][c] = 1;                        // turn land into water
-    
+    private void sink(int[][] grid, int r, int c, int rows, int cols) {
+        grid[r][c] = 1;
         for (int k = 0; k < 4; k++) {
             int nr = r + dr[k];
             int nc = c + dc[k];
-            if (nr >= 0 && nr < R && nc >= 0 && nc < C && grid[nr][nc] == 0) {
-                sink(grid, nr, nc, R, C);
+            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] == 0) {
+                sink(grid, nr, nc, rows, cols);
             }
         }
     }
