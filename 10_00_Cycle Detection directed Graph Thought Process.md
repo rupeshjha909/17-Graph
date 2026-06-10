@@ -8,6 +8,7 @@ A comprehensive guide to detecting cycles in directed graphs using both **DFS** 
 
 1. [Problem Statement](#1-problem-statement)
 2. [What Is a Cycle in a Directed Graph?](#2-what-is-a-cycle-in-a-directed-graph)
+2.5. [What Is Topological Sort? (read this first)](#25-what-is-topological-sort-read-this-first)
 3. [Why Cycle Detection in Directed Graphs Matters](#3-why-cycle-detection-in-directed-graphs-matters)
 4. [The Core Insight: Why Directed Is Different](#4-the-core-insight-why-directed-is-different)
 5. [Visual Examples of Cycles vs No Cycles](#5-visual-examples-of-cycles-vs-no-cycles)
@@ -140,6 +141,81 @@ Cycle: 0 → 1 → 2 → 0  ✓
 In undirected graphs, a single edge `(A, B)` lets you go A→B→A, but this isn't a cycle — it's just traversing the same edge twice.
 
 In directed graphs, `A → B` only goes one way. Going back requires another edge `B → A`. So `A → B → A` IS a cycle (length 2).
+
+---
+
+## 2.5. What Is Topological Sort? (read this first)
+
+This term appears throughout the doc (especially in Kahn's algorithm), so here's a plain definition before we use it.
+
+### Definition
+
+> **A topological sort (or "topological ordering") of a directed graph is an ordering of its nodes such that for every edge `u → v`, node `u` comes before node `v` in the ordering.**
+
+In other words: arrange the nodes in a line so that **every arrow points forward** (left to right). Nothing points backward.
+
+### The Intuition: Ordering Tasks with Dependencies
+
+Think of an edge `u → v` as "u must happen before v." A topological sort is then a **valid order to do all the tasks** so that every prerequisite is done before the thing that needs it.
+
+```
+Getting dressed — the "must come before" rules (edges):
+   socks    → shoes      (socks before shoes)
+   shirt    → jacket     (shirt before jacket)
+   underwear→ pants      (underwear before pants)
+   pants    → shoes      (pants before shoes)
+
+A valid topological order:
+   socks, shirt, underwear, jacket, pants, shoes
+
+Check: every rule is respected —
+   socks before shoes ✓   shirt before jacket ✓
+   underwear before pants ✓   pants before shoes ✓
+```
+
+There can be **several valid orders** (e.g., `shirt` and `socks` have no rule between them, so either may come first). Any ordering that respects all the edges is a valid topological sort.
+
+### A Graph Example
+
+```
+Edges: 0→1, 1→2, 2→3, 0→2
+
+   0 ──▶ 1 ──▶ 2 ──▶ 3
+   └───────────▲
+
+A valid topological order: [0, 1, 2, 3]
+   0 before 1 ✓   1 before 2 ✓   2 before 3 ✓   0 before 2 ✓
+```
+
+Every edge points forward in `[0, 1, 2, 3]` — that's what makes it topologically sorted.
+
+### The Crucial Rule: It Only Exists for a DAG (No Cycles)
+
+> **A topological sort exists if and only if the graph has NO cycle (i.e., it's a Directed Acyclic Graph — DAG).**
+
+Why? If there's a cycle `A → B → C → A`, then A must come before B, B before C, and C before A — so A must come before itself. **Impossible.** No valid ordering can exist.
+
+```
+Cyclic graph:  0 → 1 → 2 → 0
+   "0 before 1 before 2 before 0" — contradiction → NO topological order.
+```
+
+This is the deep connection to *this* doc:
+
+> **"Can I topologically sort this graph?" is the exact same question as "Is this graph acyclic (cycle-free)?"**
+
+That's why **Kahn's algorithm** (Section 7) does double duty: it *attempts* a topological sort, and if it can't place all the nodes, the leftover nodes are stuck in a cycle — so cycle detection falls out of topological sorting for free.
+
+### How It's Computed (two ways — both detailed later)
+
+- **Kahn's algorithm (BFS):** repeatedly remove nodes with no remaining prerequisites (in-degree 0); the order you remove them in IS a topological order. If some nodes never reach in-degree 0, there's a cycle. *(Section 7.)*
+- **DFS (post-order + reverse):** DFS the graph; when a node's DFS fully finishes, push it on a stack; reverse the stack at the end. *(Variation 1, Section 15.)*
+
+### Where You'll See It Used
+
+Course scheduling (do prerequisites first), build systems (compile dependencies first), task pipelines (Airflow/Celery), spreadsheet formula evaluation, package/dependency resolution (npm, Maven) — anywhere "do things in an order that respects dependencies" matters. The canonical interview problems are **Course Schedule (LC 207)** — does an order exist? — and **Course Schedule II (LC 210)** — output the order, which is literally the topological sort.
+
+> 💡 **One-line takeaway.** Topological sort = "line the nodes up so every arrow points forward," which is possible exactly when the graph has no cycle — so detecting a cycle and finding a topological order are two sides of the same coin.
 
 ---
 
