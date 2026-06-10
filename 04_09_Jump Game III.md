@@ -182,15 +182,22 @@ For `arr = [3,0,2,1,2], start = 2` → from 2 you can reach indices 0 and 4, the
 ```java
 class Solution {
     public boolean canReach(int[] arr, int start) {
+        if (arr[start] == 0) return true;            // caller checks the first index
         boolean[] seen = new boolean[arr.length];
         return dfs(arr, start, seen);
     }
 
     private boolean dfs(int[] arr, int i, boolean[] seen) {
-        if (i < 0 || i >= arr.length || seen[i]) return false;
-        if (arr[i] == 0) return true;
-        seen[i] = true;
-        return dfs(arr, i + arr[i], seen) || dfs(arr, i - arr[i], seen);
+        seen[i] = true;                              // (i) is valid land; mark it
+
+        int[] nexts = { i + arr[i], i - arr[i] };    // the two jumps
+        for (int next : nexts) {
+            if (next >= 0 && next < arr.length && !seen[next]) {   // validate BEFORE recursing
+                if (arr[next] == 0) return true;     // neighbor is a goal → done
+                if (dfs(arr, next, seen)) return true;
+            }
+        }
+        return false;
     }
 }
 ```
