@@ -219,21 +219,26 @@ class FindUndirectedCycle {
         return new ArrayList<>();   // empty → no cycle (it's a forest)
     }
 
-    private boolean dfs(int node, int par, List<List<Integer>> adj) {
+    private boolean dfs(int node, int parent, boolean[] visited, List<List<Integer>> adj) {
         visited[node] = true;
-        for (int nb : adj.get(node)) {
-            if (nb == par) continue;            // skip the edge we came from
-            if (visited[nb]) {                  // visited & not parent → cycle
-                cycle.add(nb);                  // meeting node
+
+        for (int neighbor : adj.get(node)) {
+            if (!visited[neighbor]) {
+                parentOf[neighbor] = node;               // record for reconstruction
+                // Recurse with current node as parent
+                if (dfs(neighbor, node, visited, adj)) {
+                    return true;
+                }
+            } else if (neighbor != parent) {
+                // Visited AND not the parent → CYCLE! Reconstruct it.
+                cycle.add(neighbor);                     // meeting node
                 int cur = node;
-                while (cur != nb) {
+                while (cur != neighbor) {
                     cycle.add(cur);
-                    cur = parent[cur];
+                    cur = parentOf[cur];
                 }
                 return true;
             }
-            parent[nb] = node;
-            if (dfs(nb, node, adj)) return true;
         }
         return false;
     }
