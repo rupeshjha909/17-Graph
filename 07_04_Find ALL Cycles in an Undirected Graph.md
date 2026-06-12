@@ -141,6 +141,51 @@ With all three, each undirected cycle is emitted once — from its smallest vert
 
 > 💡 **One canonical fingerprint per cycle.** Rule 1 fixes *where* the cycle starts, Rule 3 fixes *which way* it goes, Rule 2 ensures it's actually a cycle. Together they define a single canonical spelling, so duplicates never get recorded.
 
+### Why Rule 3 compares `path[1]` and `path[size-1]` (and not `path[size-2]`)
+
+This is the subtle part of the direction check, so it's worth unpacking. When we're about to record, `path[0]` is **always the smallest vertex** (Rule 1), and the closing edge is `path[size-1] → start`. So the ring looks like:
+
+```
+path = [start, a, b, ..., z]
+         ↑0    ↑1         ↑size-1
+        smallest          last vertex before closing back to start
+
+ring:  start — a — b — ... — z — (back to start)
+               ↑                 ↑
+        path[1]: the FIRST   path[size-1]: the LAST
+        step away from start step before returning to start
+```
+
+`path[1]` and `path[size-1]` are exactly **`start`'s two neighbors on the ring** — the vertex you leave `start` toward, and the vertex you come back from.
+
+**The key fact:** traversing the same undirected ring the other way (reversing it, keeping `start` pinned at index 0) **swaps exactly those two vertices**:
+
+```
+Direction A (forward):   [start, a, b, z]   → path[1]=a,  path[size-1]=z
+Direction B (reversed):  [start, z, b, a]   → path[1]=z,  path[size-1]=a
+                                                   ↑ a and z have swapped
+```
+
+So comparing `path[1] < path[size-1]` cleanly splits the two orientations into "keep" vs "skip":
+
+```
+Direction A: a < z ?  →  if a<z, RECORD
+Direction B: z < a ?  →  z<a is false (since a<z), SKIP
+```
+
+**Exactly one** of the two passes → each cycle recorded once.
+
+**Why not `path[size-2]`?** Because it isn't `path[1]`'s reversal-partner. The vertices that swap under reversal are the symmetric pairs `(1, size-1)`, `(2, size-2)`, … — index `i` swaps with index `size-i`. So `path[1]`'s partner is `path[size-1]`, **not** `path[size-2]`. Comparing `path[1]` vs `path[size-2]` would compare *unrelated* vertices across the two orientations:
+
+```
+Direction A: [start, a, b, c, z]   path[1]=a, path[size-2]=c   → check a < c
+Direction B: [start, z, c, b, a]   path[1]=z, path[size-2]=b   → check z < b
+```
+
+Here `a<c` and `z<b` are independent conditions — both could be true, or both false — so the cycle might be recorded **twice** or **never**. The comparison only reliably picks one orientation when the two values genuinely swap between directions, which is true only for the pair `(path[1], path[size-1])`.
+
+> 💡 **The rule in one line.** `path[1]` and `path[size-1]` are `start`'s two ring-neighbors, and reversing the cycle swaps exactly those two — so comparing them splits the orientations cleanly. They're always distinct vertices, so this first symmetric pair always decides on its own; you never need to compare deeper pairs like `path[size-2]`.
+
 ---
 
 ## 7. The Algorithm
