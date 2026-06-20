@@ -283,6 +283,111 @@ class FindAllUndirectedCycles {
         }
     }
 }
+
+
+
+
+
+
+
+
+import java.util.*;
+
+class FindAllUndirectedCycles {
+
+    // ── INSTANCE FIELDS (shared across the whole search) ─────────────────────
+
+    // cycles: the OUTPUT. Each inner list is one elementary cycle's vertices
+    //         in order, e.g. [0,1,2]. We append a fresh copy whenever we find one.
+    private List<List<Integer>> cycles = new ArrayList<>();
+
+    // adj: the GRAPH as an adjacency list. adj.get(u) = list of u's neighbors.
+    //      Stored as a field so dfs() can read it without passing it every call.
+    private List<List<Integer>> adj;
+
+
+    public List<List<Integer>> findAllCycles(int V, List<List<Integer>> adj) {
+        // V:   number of vertices, labeled 0 .. V-1.
+        // adj: caller's graph; cache it in the field for dfs() to use.
+        this.adj = adj;
+
+        // Run ONE search per possible anchor vertex `start`.
+        // Convention: a cycle is reported ONLY from the dfs whose `start`
+        // is the cycle's SMALLEST vertex (enforced later by rule (1)).
+        for (int start = 0; start < V; start++) {
+
+            // onPath: onPath[x] == true  ⇒  vertex x is currently on `path`.
+            //         Fresh per `start` because each search is independent.
+            //         Used to keep the walk SIMPLE (never revisit a vertex).
+            boolean[] onPath = new boolean[V];
+            onPath[start] = true;                 // start is the first vertex on the path
+
+            // path: the current walk from `start` outward — the candidate cycle.
+            //       Begins as just [start]; grows/shrinks as dfs explores/backtracks.
+            List<Integer> path = new ArrayList<>();
+            path.add(start);
+
+            // Explore all simple paths leaving `start`; report those returning to it.
+            dfs(start, start, path, onPath);
+        }
+        return cycles;
+    }
+
+
+    private void dfs(int start, int node, List<Integer> path, boolean[] onPath) {
+        // start: the anchor vertex for this whole search (the cycle's intended minimum).
+        // node:  the vertex we are STANDING ON right now (end of `path`).
+        // path:  the walk built so far, start ... node.
+        // onPath: which vertices are already on `path` (for the simple-walk check).
+
+        // Look at every neighbor `nb` of the current `node`.
+        for (int nb : adj.get(node)) {
+
+            // ── RULE (1) ROTATION DEDUP ──────────────────────────────────────
+            // Never step onto a vertex smaller than `start`. This forces `start`
+            // to be the MINIMUM vertex of any cycle we build here, so each cycle
+            // is found under exactly one anchor (no "same cycle, different start").
+            if (nb < start) continue;
+
+            // ── RULE (2) A REAL CYCLE CLOSES ─────────────────────────────────
+            // nb == start  ⇒  we returned to the anchor → a cycle closed.
+            // path.size() >= 3  ⇒  at least 3 distinct vertices. In an undirected
+            // graph u-v-u (size 2) is just walking one edge back, NOT a real cycle;
+            // the smallest true cycle is a triangle.
+            if (nb == start && path.size() >= 3) {
+
+                // ── RULE (3) DIRECTION DEDUP ─────────────────────────────────
+                // Each ring is discovered twice — once per traversal direction.
+                // path.get(1)              = first vertex after `start`
+                // path.get(path.size()-1)  = last vertex before closing back to start
+                // These two are start's two neighbors ON THE RING; a reversal swaps
+                // them. Keep only the orientation where the first is smaller, so the
+                // mirror-image traversal is rejected → each cycle recorded once.
+                if (path.get(1) < path.get(path.size() - 1)) {
+
+                    // Record a COPY: `path` keeps mutating during backtracking, so
+                    // storing the reference would later leave a corrupted/empty list.
+                    cycles.add(new ArrayList<>(path));
+                }
+
+            // ── RECURSE DEEPER (extend the walk) ─────────────────────────────
+            // Step to `nb` only if:
+            //   nb > start     → keeps `start` the minimum (reinforces rule (1))
+            //   !onPath[nb]    → nb not already on the walk → path stays SIMPLE
+            } else if (nb > start && !onPath[nb]) {
+
+                onPath[nb] = true;                  // CHOOSE nb: mark it used
+                path.add(nb);                       //           append to the walk
+
+                dfs(start, nb, path, onPath);       // EXPLORE everything via nb
+
+                path.remove(path.size() - 1);       // UNDO (backtrack): pop nb
+                onPath[nb] = false;                 //                    free nb
+                // Undoing is essential so the next neighbor of `node` starts clean.
+            }
+        }
+    }
+}
 ```
 
 (Verified: produces exactly the brute-force set of undirected elementary cycles over 3k random graphs; K4 → 7 cycles as expected.)
