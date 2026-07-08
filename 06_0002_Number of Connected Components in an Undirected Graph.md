@@ -233,18 +233,18 @@ class Solution {
     public int countComponents(int n, int[][] edges) {
         parent = new int[n];
         rank = new int[n];
-        for (int i = 0; i < n; i++) parent[i] = i;   // each node its own root
+        for (int i = 0; i < n; i++) parent[i] = i;   // each node starts as its own root
 
         int components = n;
         for (int[] e : edges) {
-            if (union(e[0], e[1])) components--;      // merged two → one fewer component
+            if (union(e[0], e[1])) components--;      // merged two groups → one fewer component
         }
         return components;
     }
 
     private int find(int x) {
         while (parent[x] != x) {
-            parent[x] = parent[parent[x]];   // path compression
+            parent[x] = parent[parent[x]];   // path compression: point to grandparent
             x = parent[x];
         }
         return x;
@@ -252,10 +252,17 @@ class Solution {
 
     private boolean union(int a, int b) {
         int ra = find(a), rb = find(b);
-        if (ra == rb) return false;          // already same group → no merge
-        if (rank[ra] < rank[rb]) { int t = ra; ra = rb; rb = t; }   // union by rank
-        parent[rb] = ra;
-        if (rank[ra] == rank[rb]) rank[ra]++;
+        if (ra == rb) return false;          // already in the same group → nothing to merge
+
+        // Attach the SHORTER tree under the TALLER tree's root (keeps trees shallow).
+        if (rank[ra] < rank[rb]) {
+            parent[ra] = rb;                 // ra's tree is shorter → hang it under rb
+        } else if (rank[ra] > rank[rb]) {
+            parent[rb] = ra;                 // rb's tree is shorter → hang it under ra
+        } else {
+            parent[rb] = ra;                 // equal height → attach either way...
+            rank[ra]++;                      // ...and the merged tree grows one level taller
+        }
         return true;
     }
 }
