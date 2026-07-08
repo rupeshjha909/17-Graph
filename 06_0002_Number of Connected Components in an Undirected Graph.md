@@ -243,11 +243,10 @@ class Solution {
     }
 
     private int find(int x) {
-        while (parent[x] != x) {
-            parent[x] = parent[parent[x]];   // path compression: point to grandparent
-            x = parent[x];
+        if (parent[x] != x) {
+            parent[x] = find(parent[x]);   // full path compression: point straight to the root
         }
-        return x;
+        return parent[x];
     }
 
     private boolean union(int a, int b) {
