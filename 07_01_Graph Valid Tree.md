@@ -203,12 +203,16 @@ class Solution {
     }
 
     private int find(int x) {
-        while (parent[x] != x) {
-            parent[x] = parent[parent[x]];   // path compression
-            x = parent[x];
-        }
-        return x;
-    }
+      // Base case: if x is its own parent, x is the root of its set
+      if (parent[x] == x) {
+          return x;
+      }
+      // Recursive case: find the root, then apply path compression
+      // (point x directly to the root for future O(1) lookups)
+      int root = find(parent[x]);
+      parent[x] = root;   // path compression
+      return root;
+  }
 }
 ```
 
