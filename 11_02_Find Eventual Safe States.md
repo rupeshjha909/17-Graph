@@ -110,20 +110,25 @@ This is Kahn's algorithm run on out-degree over the reversed graph — safety fl
 ```java
 public List<Integer> eventualSafeNodes(int[][] graph) {
     int n = graph.length;
-    int[] state = new int[n];              // 0 unvisited, 1 in-progress, 2 safe
+    int[] state = new int[n];              // 0 = unvisited, 1 = GRAY (in-progress/unsafe), 2 = BLACK (safe)
     List<Integer> res = new ArrayList<>();
-    for (int i = 0; i < n; i++)
-        if (dfs(i, graph, state)) res.add(i);
-    return res;                             // already in ascending order (i grows)
+    for (int i = 0; i < n; i++) {
+        if (state[i] == 0) hasCycle(i, graph, state);   // classify i and everything reachable
+        if (state[i] == 2) res.add(i);                   // ended BLACK ⇒ safe (ascending order preserved)
+    }
+    return res;
 }
-private boolean dfs(int u, int[][] graph, int[] state) {
-    if (state[u] == 1) return false;        // back-edge to current path → cycle → unsafe
-    if (state[u] == 2) return true;         // already certified safe
-    state[u] = 1;                            // enter path
-    for (int v : graph[u])
-        if (!dfs(v, graph, state)) return false;   // any unsafe neighbor → u unsafe
-    state[u] = 2;                            // all neighbors safe → u safe
-    return true;
+
+// returns true if a cycle is reachable from `node`  ⇒  node is unsafe
+private boolean hasCycle(int node, int[][] graph, int[] state) {
+    state[node] = 1;                                     // GRAY (enter path)
+    for (int nb : graph[node]) {
+        if (state[nb] == 1) return true;                 // GRAY neighbor → back edge → cycle
+        if (state[nb] == 0 && hasCycle(nb, graph, state)) return true;   // cycle in descendants
+        // state[nb] == 2 (BLACK safe) → skip, no cycle through it
+    }
+    state[node] = 2;                                     // BLACK (all paths safe)
+    return false;
 }
 ```
 
